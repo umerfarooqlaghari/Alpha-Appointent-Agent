@@ -157,13 +157,20 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
 
             try
             {
-                var allowedList = config.AllowedDomains.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var allowedList = config.AllowedDomains.Split(new char[] { ',', ' ', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 var uri = new Uri(origin);
                 var host = uri.Host;
 
-                bool isAllowed = allowedList.Any(domain => 
-                    domain.Equals(host, StringComparison.OrdinalIgnoreCase) || 
-                    host.EndsWith("." + domain, StringComparison.OrdinalIgnoreCase));
+                bool isAllowed = allowedList.Any(domain => {
+                    var cleanDomain = domain;
+                    var colonIdx = domain.IndexOf(':');
+                    if (colonIdx >= 0) {
+                        cleanDomain = domain.Substring(0, colonIdx);
+                    }
+                    cleanDomain = cleanDomain.TrimEnd('.');
+                    return host.Equals(cleanDomain, StringComparison.OrdinalIgnoreCase) || 
+                           host.EndsWith("." + cleanDomain, StringComparison.OrdinalIgnoreCase);
+                });
 
                 if (!isAllowed)
                     return Results.Forbid();
