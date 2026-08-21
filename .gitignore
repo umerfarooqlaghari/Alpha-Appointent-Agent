@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Next.js output
+.next/
+dev-build
+out/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and package-manager files
+*.log
+logs/
+.npm/
+.pnpm-store/
+
+# Tooling and editor state
+.turbo/
+.vercel/
+.DS_Store
+.vscode/

@@ -1,0 +1,32 @@
+import { CalendarDays, Save, Trash2 } from "lucide-react";
+import { deleteSlot, updateAvailability } from "@/app/actions";
+import { DashboardShell } from "@/components/dashboard-shell";
+import { SlotPagination } from "@/components/slot-pagination";
+import { decodeTenantId, type AvailabilitySlot } from "@/lib/db";
+import { tenantApi } from "@/lib/api";
+
+const dateTime = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" });
+const weekdayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+type Availability = { timeZone: string; slotDurationMinutes: number; workingHours: Array<{ dayOfWeek: number; startTime: string; endTime: string }>; holidays: Array<{ holidayDate: string; name: string | null }> };
+type SlotPage = { items: Array<{ slotId: string; tenantId: string; slotStart: string; slotEnd: string; isBooked: boolean; appointmentId: string | null }>; total: number; page: number; pageSize: number };
+export default async function CalendarPage({ params, searchParams }: { params: Promise<{ tenantId: string }>; searchParams: Promise<{ page?: string }> }) {
+  const { tenantId } = await params;
+  const { page: pageParam } = await searchParams;
+  const decodedTenantId = decodeTenantId(tenantId);
+  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const [availability, slotPage] = await Promise.all([
+    tenantApi<Availability>(`/api/tenants/${encodeURIComponent(decodedTenantId)}/availability`),
+    tenantApi<SlotPage>(`/api/tenants/${encodeURIComponent(decodedTenantId)}/slots?page=${page}&pageSize=20`),
+  ]);
+  const slots = slotPage.items.map((slot): AvailabilitySlot => ({ slot_id: slot.slotId, tenant_id: slot.tenantId, slot_start: new Date(slot.slotStart), slot_end: new Date(slot.slotEnd), is_booked: slot.isBooked, appointment_id: slot.appointmentId }));
+  const totalPages = Math.max(1, Math.ceil(slotPage.total / slotPage.pageSize));
+  const byDay = new Map(availability.workingHours.map((item) => [item.dayOfWeek, item]));
+  const holidayText = availability.holidays.map((item) => `${item.holidayDate}${item.name ? `, ${item.name}` : ""}`).join("\n");
+  return <DashboardShell tenantId={tenantId}><div className="mx-auto max-w-6xl"><p className="text-sm font-semibold text-teal-700">AVAILABILITY</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Working hours and holidays</h2>
+    <form action={updateAvailability.bind(null, decodedTenantId)} className="mt-7 space-y-6 rounded-lg border border-black/5 bg-white p-5 shadow-sm"><div className="grid gap-4 md:grid-cols-2"><label className="text-sm font-medium">Time zone<input required name="timeZone" defaultValue={availability.timeZone} placeholder="America/New_York" className="mt-1 block w-full rounded-md border border-stone-200 p-2" /></label><label className="text-sm font-medium">Appointment length<select name="slotDurationMinutes" defaultValue={availability.slotDurationMinutes} className="mt-1 block w-full rounded-md border border-stone-200 p-2"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label></div>
+      <div><h3 className="text-sm font-semibold">Weekly working hours</h3><div className="mt-3 divide-y divide-stone-100 rounded-md border border-stone-200">{weekdayNames.map((name, dayOfWeek) => { const rule = byDay.get(dayOfWeek); const enabledByDefault = rule !== undefined || (availability.workingHours.length === 0 && dayOfWeek > 0 && dayOfWeek < 6); return <div key={name} className="grid grid-cols-[auto_1fr_1fr] items-center gap-3 p-3 text-sm"><input name={`day-${dayOfWeek}-enabled`} type="checkbox" defaultChecked={enabledByDefault} /><span className="font-medium">{name}</span><div className="grid grid-cols-2 gap-2"><input name={`day-${dayOfWeek}-start`} type="time" defaultValue={rule?.startTime.slice(0, 5) ?? "09:00"} className="rounded-md border border-stone-200 p-2" /><input name={`day-${dayOfWeek}-end`} type="time" defaultValue={rule?.endTime.slice(0, 5) ?? "17:00"} className="rounded-md border border-stone-200 p-2" /></div></div>; })}</div></div>
+      <label className="block text-sm font-medium">Holidays<textarea name="holidays" defaultValue={holidayText} placeholder={"2026-12-25, Christmas\n2027-01-01, New Year"} rows={4} className="mt-1 block w-full rounded-md border border-stone-200 p-2 font-mono text-sm" /></label>
+      <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#12382e] px-4 text-sm font-semibold text-white"><Save size={16} /> Save availability</button></form>
+    <div className="mt-6 overflow-hidden rounded-lg border border-black/5 bg-white shadow-sm"><div className="flex items-center justify-between gap-3 border-b border-stone-100 px-5 py-3 text-sm font-semibold"><span className="flex items-center gap-2"><CalendarDays size={16} /> Generated availability</span><span className="text-xs font-medium text-stone-500">{slotPage.total} slots</span></div><div className="grid grid-cols-[1fr_1fr_auto_auto] gap-3 border-b border-stone-100 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-stone-500"><span>Start</span><span>End</span><span>Status</span><span className="sr-only">Actions</span></div>{slots.length ? slots.map((slot) => <div key={slot.slot_id} className="grid grid-cols-[1fr_1fr_auto_auto] items-center gap-3 border-b border-stone-100 px-5 py-4 text-sm last:border-0"><span>{dateTime.format(new Date(slot.slot_start))}</span><span>{dateTime.format(new Date(slot.slot_end))}</span><span className={`font-medium ${slot.is_booked ? "text-amber-700" : "text-teal-700"}`}>{slot.is_booked ? "Booked" : "Free"}</span>{!slot.is_booked && <form action={deleteSlot.bind(null, decodedTenantId, slot.slot_id)}><button title="Delete slot" aria-label="Delete slot" className="inline-flex size-8 items-center justify-center rounded-md text-rose-700 hover:bg-rose-50"><Trash2 size={16} /></button></form>}</div>) : <p className="p-10 text-center text-sm text-stone-500">Save working hours to generate availability.</p>}{slotPage.total > 0 && <SlotPagination page={slotPage.page} totalPages={totalPages} />}</div>
+  </div></DashboardShell>;
+}

@@ -1,0 +1,14 @@
+"use client";
+import Vapi from "@vapi-ai/web";
+import { Mic, PhoneOff, Radio } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+type CallStatus = "Ready" | "Connecting" | "Listening" | "Speaking" | "Ended";
+export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantName: string }) {
+  const vapiRef = useRef<Vapi | null>(null); const [status, setStatus] = useState<CallStatus>("Ready");
+  useEffect(() => { const key = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY; if (!key) return; const vapi = new Vapi(key); vapiRef.current = vapi; vapi.on("call-start", () => setStatus("Listening")); vapi.on("call-end", () => setStatus("Ended")); vapi.on("speech-start", () => setStatus("Speaking")); vapi.on("speech-end", () => setStatus("Listening")); return () => { vapi.stop(); }; }, []);
+  function startCall() { const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID; if (!assistantId || !vapiRef.current) return; setStatus("Connecting"); vapiRef.current.start(assistantId, { variableValues: { tenantId, tenant_id: tenantId } }); }
+  function endCall() { vapiRef.current?.stop(); setStatus("Ended"); }
+  const active = status === "Connecting" || status === "Listening" || status === "Speaking";
+  return <main className="grid min-h-screen place-items-center bg-[#12382e] p-6 text-white"><section className="w-full max-w-lg text-center"><p className="text-xs font-semibold tracking-[0.24em] text-[#ddf070]">{tenantName.toUpperCase()}</p><h1 className="mt-4 text-4xl font-semibold tracking-tight">Talk to our receptionist</h1><p className="mt-3 text-emerald-100">Ask about availability, services, or book your next visit.</p><div className="mt-12"><div className={`mx-auto grid size-36 place-items-center rounded-full border border-white/20 ${active ? "animate-pulse bg-[#ddf070] text-[#12382e]" : "bg-white/10"}`}><Radio size={42} /></div><p className="mt-7 text-xl font-semibold">{status}</p><p className="mt-2 text-sm text-emerald-200">{status === "Speaking" ? "The receptionist is speaking" : status === "Listening" ? "Go ahead, we are listening" : "Your private voice connection"}</p></div>{active ? <button onClick={endCall} className="mt-10 inline-flex items-center gap-2 rounded-md bg-rose-500 px-5 py-3 font-semibold"><PhoneOff size={18} /> End call</button> : <button onClick={startCall} className="mt-10 inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-5 py-3 font-semibold text-[#12382e]"><Mic size={18} /> {status === "Ended" ? "Start another call" : "Start call"}</button>}<p className="mt-8 text-xs text-emerald-300">Powered by Relay Desk</p></section></main>;
+}

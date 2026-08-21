@@ -1,0 +1,2 @@
+export type Tenant = { tenant_id: string; name: string; status: string; created_at: Date };
+export type Appointment = { appointment_id: string; tenant_id: string; customer_name: string; customer_phone: string; service: string; start_time: Date; end_time: Date; status: string; notes: string | null; created_at: Date };

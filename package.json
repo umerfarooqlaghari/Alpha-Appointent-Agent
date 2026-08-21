@@ -1,0 +1,17 @@
+{
+  "name": "alpha-appointment-agent",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail --names tenant,admin --prefix-colors cyan,magenta \"npm run dev --workspace=tenant-frontend -- --port $TENANT_FRONTEND_PORT\" \"npm run dev --workspace=superadmin-frontend -- --port $SUPERADMIN_FRONTEND_PORT\"",
+    "dev:backend": "dotnet watch --project apps/backend run --urls $BACKEND_API_URL",
+    "dev:tenant": "npm run dev --workspace=tenant-frontend",
+    "dev:admin": "npm run dev --workspace=superadmin-frontend",
+    "build": "npm run build --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}

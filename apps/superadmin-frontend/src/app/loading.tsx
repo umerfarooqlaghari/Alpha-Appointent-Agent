@@ -1,0 +1,3 @@
+export default function Loading() {
+  return <><header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4"><div className="h-5 w-28 animate-pulse rounded bg-slate-200" /><div className="flex gap-3">{Array.from({ length: 3 }, (_, index) => <div key={index} className="h-8 w-24 animate-pulse rounded bg-slate-100" />)}</div></div></header><main className="mx-auto max-w-7xl px-6 py-10"><div className="h-4 w-32 animate-pulse rounded bg-teal-100" /><div className="mt-3 h-9 w-72 animate-pulse rounded bg-slate-200" /><div className="mt-8 space-y-3">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-14 animate-pulse rounded-md bg-slate-100" />)}</div></main></>;
+}
