@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const baseUrl = process.env.BACKEND_API_URL ?? (() => { throw new Error("BACKEND_API_URL is required."); })();
+const baseUrl = process.env.BACKEND_API_URL
+  ;
 
 export async function tenantApi<T>(path: string, init?: RequestInit): Promise<T> {
   const token = (await cookies()).get("auth_token")?.value;
