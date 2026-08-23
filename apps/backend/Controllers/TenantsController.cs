@@ -199,13 +199,20 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         sub.PlanName = request.PlanName;
         sub.MonthlyMinutesLimit = request.MonthlyMinutesLimit;
         sub.IsActive = request.IsActive;
-        if (request.ResetMinutes)
-        {
-            sub.MinutesUsed = 0.0;
-        }
+
         if (request.CurrentPeriodEnd.HasValue)
         {
             sub.CurrentPeriodEnd = request.CurrentPeriodEnd.Value;
+        }
+        else if (request.ResetPeriod || request.ResetMinutes || sub.CurrentPeriodEnd < DateTimeOffset.UtcNow)
+        {
+            sub.CurrentPeriodStart = DateTimeOffset.UtcNow;
+            sub.CurrentPeriodEnd = DateTimeOffset.UtcNow.AddDays(request.PlanName.Equals("Trial", StringComparison.OrdinalIgnoreCase) ? 14 : 30);
+        }
+
+        if (request.ResetMinutes)
+        {
+            sub.MinutesUsed = 0.0;
         }
 
         await db.SaveChangesAsync();
@@ -549,6 +556,6 @@ public sealed record HolidayResponse(DateOnly HolidayDate, string? Name);
 public sealed record SlotPageResponse(List<AvailabilitySlot> Items, int Total, int Page, int PageSize);
 public sealed record ConfigRequest(string AdapterType, string? ApiBaseUrl, string? AuthHeaderName, string? AuthToken, string? ProductsApiUrl, string? InventorySource, string? PublishableKey, string? AllowedDomains);
 public sealed record AppointmentResponse(string AppointmentId, string TenantId, string CustomerName, string CustomerPhone, string Service, DateTimeOffset StartTime, DateTimeOffset EndTime, string Status, string? Notes, DateTimeOffset CreatedAt);
-public sealed record UpdateSubscriptionRequest(string PlanName, int MonthlyMinutesLimit, bool IsActive, bool ResetMinutes, DateTimeOffset? CurrentPeriodEnd);
+public sealed record UpdateSubscriptionRequest(string PlanName, int MonthlyMinutesLimit, bool IsActive, bool ResetMinutes, bool ResetPeriod, DateTimeOffset? CurrentPeriodEnd);
 public sealed record CheckoutRequest(string PlanName);
 public sealed record PlanRequest(string PlanName, int MonthlyMinutesLimit, decimal Price, string? Description, bool IsActive);

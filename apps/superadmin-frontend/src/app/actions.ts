@@ -19,6 +19,7 @@ export async function updateTenantSubscription(tenantId: string, formData: FormD
   const monthlyMinutesLimit = parseInt(String(formData.get("monthlyMinutesLimit") || "30"), 10);
   const isActive = formData.get("isActive") === "true";
   const resetMinutes = formData.get("resetMinutes") === "true";
+  const resetPeriod = formData.get("resetPeriod") === "true";
 
   await adminApi(`/api/admin/tenants/${encodeURIComponent(tenantId)}/subscription`, {
     method: "PUT",
@@ -27,6 +28,7 @@ export async function updateTenantSubscription(tenantId: string, formData: FormD
       monthlyMinutesLimit,
       isActive,
       resetMinutes,
+      resetPeriod,
       currentPeriodEnd: null
     })
   });

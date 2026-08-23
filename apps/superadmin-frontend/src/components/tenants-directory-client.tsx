@@ -267,6 +267,17 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 Reset minute counter to 0
               </label>
 
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <input
+                  type="checkbox"
+                  name="resetPeriod"
+                  value="true"
+                  disabled={isPending}
+                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                />
+                Reset trial days / billing period (+14 / +30 days)
+              </label>
+
               <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"
