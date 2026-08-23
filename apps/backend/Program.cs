@@ -1,5 +1,6 @@
 using System.Text;
 using Alpha.Appointment.Api.Data;
+using Alpha.Appointment.Api.Models;
 using Alpha.Appointment.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -111,7 +112,38 @@ await using (var scope = app.Services.CreateAsyncScope())
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
         CREATE INDEX IF NOT EXISTS idx_faqs_tenant ON faqs (tenant_id);
+        CREATE TABLE IF NOT EXISTS tenant_subscriptions (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            plan_name TEXT NOT NULL DEFAULT 'Starter',
+            monthly_minutes_limit INTEGER NOT NULL DEFAULT 500,
+            minutes_used NUMERIC(10, 2) NOT NULL DEFAULT 0.0,
+            current_period_start TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            current_period_end TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            is_active BOOLEAN NOT NULL DEFAULT TRUE
+        );
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_tenant_subscriptions_tenant ON tenant_subscriptions (tenant_id);
+        CREATE TABLE IF NOT EXISTS subscription_plans (
+            id TEXT PRIMARY KEY,
+            plan_name TEXT NOT NULL,
+            monthly_minutes_limit INTEGER NOT NULL DEFAULT 500,
+            price NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+            description TEXT NOT NULL DEFAULT '',
+            is_active BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
         """);
+
+    if (!await db.SubscriptionPlans.AnyAsync())
+    {
+        db.SubscriptionPlans.AddRange(
+            new SubscriptionPlan { Id = "plan_trial", PlanName = "Trial", MonthlyMinutesLimit = 30, Price = 0.00m, Description = "14 days / 30 calling minutes trial", IsActive = true, CreatedAt = DateTimeOffset.UtcNow },
+            new SubscriptionPlan { Id = "plan_starter", PlanName = "Starter", MonthlyMinutesLimit = 500, Price = 50.00m, Description = "500 calling minutes included per month", IsActive = true, CreatedAt = DateTimeOffset.UtcNow },
+            new SubscriptionPlan { Id = "plan_pro", PlanName = "Pro", MonthlyMinutesLimit = 1500, Price = 120.00m, Description = "1,500 calling minutes included per month", IsActive = true, CreatedAt = DateTimeOffset.UtcNow },
+            new SubscriptionPlan { Id = "plan_premium", PlanName = "Premium", MonthlyMinutesLimit = 5000, Price = 350.00m, Description = "5,000 calling minutes included per month", IsActive = true, CreatedAt = DateTimeOffset.UtcNow }
+        );
+        await db.SaveChangesAsync();
+    }
 }
 if (args.Contains("--seed-auth"))
 {

@@ -60,3 +60,14 @@ export async function logout() {
   (await store).delete("auth_tenant");
   redirect("/login");
 }
+
+export async function createCheckoutSession(tenantId: string, planName: string) {
+  const data = await tenantApi<{ url: string | null; message?: string }>(
+    `/api/tenants/${encodeURIComponent(tenantId)}/billing/checkout`,
+    {
+      method: "POST",
+      body: JSON.stringify({ planName }),
+    }
+  );
+  return data;
+}

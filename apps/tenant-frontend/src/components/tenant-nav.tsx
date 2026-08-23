@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, ExternalLink, LayoutDashboard, Settings, UsersRound, Package, HelpCircle, LogOut } from "lucide-react";
+import { CalendarDays, ExternalLink, LayoutDashboard, Settings, UsersRound, Package, HelpCircle, LogOut, CreditCard } from "lucide-react";
 import { logout } from "@/app/actions";
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { label: "Appointments", icon: UsersRound, suffix: "/appointments" },
   { label: "Inventory", icon: Package, suffix: "/inventory" },
   { label: "FAQs", icon: HelpCircle, suffix: "/faqs" },
+  { label: "Billing", icon: CreditCard, suffix: "/billing" },
   { label: "Settings", icon: Settings, suffix: "/settings" },
 ];
 

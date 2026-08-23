@@ -124,10 +124,14 @@
 
         const response = await fetch(`${frontendBaseUrl}/api/widget/verify?publishableKey=${encodeURIComponent(tenantKey)}`);
         if (!response.ok) {
+          if (response.status === 402) {
+            throw new Error('Call limit reached. Please upgrade your subscription.');
+          }
           throw new Error('Unauthorized origin or invalid publishable key.');
         }
         const data = await response.json();
         verifiedTenantId = data.tenantId;
+        window.RelayDeskRemainingSeconds = data.remainingSeconds;
       }
 
       // 2. Load Vapi SDK
@@ -171,7 +175,9 @@
         }
 
         // Start call with verified tenantId passed dynamically
+        const maxSecs = window.RelayDeskRemainingSeconds ? Math.min(window.RelayDeskRemainingSeconds, 1800) : 1800;
         vapiInstance.start(vapiAssistantId, {
+          maxDurationSeconds: maxSecs,
           variableValues: {
             tenantId: verifiedTenantId,
             tenant_id: verifiedTenantId
