@@ -23,11 +23,11 @@ export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantN
     const key = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY;
     if (!key) return;
 
-    function initVapi() {
+    function initVapi(apiKey: string) {
       const VapiConstructor = (window as unknown as CustomWindow).Vapi;
       if (!VapiConstructor || vapiRef.current) return;
 
-      const vapi = new VapiConstructor(key);
+      const vapi = new VapiConstructor(apiKey);
       vapiRef.current = vapi;
       vapi.on("call-start", () => setStatus("Listening"));
       vapi.on("call-end", () => setStatus("Ended"));
@@ -36,12 +36,12 @@ export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantN
     }
 
     if ((window as unknown as CustomWindow).Vapi) {
-      initVapi();
+      initVapi(key);
     } else {
       const script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
       script.defer = true;
-      script.onload = () => initVapi();
+      script.onload = () => initVapi(key);
       document.head.appendChild(script);
     }
 
