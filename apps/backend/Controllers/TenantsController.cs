@@ -390,6 +390,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         return Results.Ok(new { tenantId = config.TenantId, remainingSeconds = remainingSeconds });
     }
 
+    [HttpPost("public/webhooks/vapi")]
     [HttpPost("public/webhooks/vapi/events")]
     public async Task<IResult> VapiWebhook([FromBody] System.Text.Json.Nodes.JsonNode payload)
     {
