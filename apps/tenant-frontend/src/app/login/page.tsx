@@ -1,2 +1,10 @@
-import { login } from "./actions";
-export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string }> }) { const { error } = await searchParams; return <main className="grid min-h-screen place-items-center bg-[#12382e] p-6"><form action={login} className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow-xl"><p className="text-sm font-semibold text-teal-700">RELAY DESK</p><h1 className="text-2xl font-semibold">Tenant sign in</h1>{error && <p className="text-sm text-rose-700">{error}</p>}<input required name="email" type="email" placeholder="Email" className="w-full rounded-md border border-stone-200 p-2.5" /><input required name="password" type="password" placeholder="Password" className="w-full rounded-md border border-stone-200 p-2.5" /><button className="w-full rounded-md bg-[#12382e] p-2.5 font-semibold text-white">Sign in</button></form></main>; }
+import { TenantLoginFormClient } from "@/components/login-form-client";
+
+export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
+  return (
+    <main className="grid min-h-screen place-items-center bg-[#12382e] p-6">
+      <TenantLoginFormClient initialError={error} />
+    </main>
+  );
+}

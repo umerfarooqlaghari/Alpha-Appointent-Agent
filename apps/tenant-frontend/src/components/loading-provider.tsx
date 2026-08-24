@@ -1,8 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import React, { createContext, useContext, useState } from "react";
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -15,37 +13,6 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
-  const pathname = usePathname();
-
-  // Hide loader when path changes
-  useEffect(() => {
-    setIsLoading(false);
-  }, [pathname]);
-
-  // Intercept local link clicks
-  useEffect(() => {
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const anchor = target.closest("a");
-      if (anchor && anchor.href && anchor.target !== "_blank") {
-        try {
-          const url = new URL(anchor.href);
-          // If internal and changing path, show loader
-          if (
-            url.origin === window.location.origin &&
-            url.pathname !== window.location.pathname
-          ) {
-            setIsLoading(true);
-          }
-        } catch {
-          // Ignore invalid URLs
-        }
-      }
-    };
-
-    document.addEventListener("click", handleAnchorClick);
-    return () => document.removeEventListener("click", handleAnchorClick);
-  }, []);
 
   const showLoader = () => setIsLoading(true);
   const hideLoader = () => setIsLoading(false);
@@ -62,18 +29,6 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
   return (
     <LoadingContext.Provider value={{ isLoading, showLoader, hideLoader, withLoading }}>
       {children}
-      {isLoading && (
-        <div className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-[#12382e]/85 backdrop-blur-md text-white animate-in fade-in duration-200">
-          <div className="relative flex items-center justify-center size-20">
-            <div className="absolute inset-0 rounded-full border-4 border-emerald-800"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-[#ddf070] border-t-transparent animate-spin"></div>
-            <LoaderCircle className="text-[#ddf070]" size={32} />
-          </div>
-          <p className="mt-5 text-xs font-semibold tracking-[0.2em] uppercase text-[#ddf070] animate-pulse">
-            Processing...
-          </p>
-        </div>
-      )}
     </LoadingContext.Provider>
   );
 }

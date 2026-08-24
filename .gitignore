@@ -22,3 +22,16 @@ logs/
 .vercel/
 .DS_Store
 .vscode/
+
+# .NET / C# ignores
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.suo
+*.user
+*.cache
+*.db
+apps/backend/obj/Debug/net8.0/backend.AssemblyInfo.cs
+apps/backend/obj/Debug/net8.0/backend.AssemblyInfo.cs
