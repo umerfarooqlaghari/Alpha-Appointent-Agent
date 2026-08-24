@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   distDir: process.env.NODE_ENV === "development" ? "dev-build" : ".next",
 };
 
