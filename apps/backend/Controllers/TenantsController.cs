@@ -396,29 +396,65 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         try
         {
             var messageType = payload["message"]?["type"]?.GetValue<string>();
-            if (messageType == "end-of-call-report")
+            if (messageType == "end-of-call-report" || messageType == "call.ended")
             {
                 var tenantId = payload["message"]?["call"]?["assistantOverrides"]?["variableValues"]?["tenantId"]?.GetValue<string>()
-                               ?? payload["message"]?["call"]?["assistantOverrides"]?["variableValues"]?["tenant_id"]?.GetValue<string>();
+                               ?? payload["message"]?["call"]?["assistantOverrides"]?["variableValues"]?["tenant_id"]?.GetValue<string>()
+                               ?? payload["message"]?["call"]?["variableValues"]?["tenantId"]?.GetValue<string>()
+                               ?? payload["message"]?["call"]?["variableValues"]?["tenant_id"]?.GetValue<string>()
+                               ?? payload["message"]?["call"]?["assistant"]?["variableValues"]?["tenantId"]?.GetValue<string>()
+                               ?? payload["message"]?["call"]?["assistant"]?["variableValues"]?["tenant_id"]?.GetValue<string>();
                 
-                var startedAtStr = payload["message"]?["startedAt"]?.GetValue<string>();
-                var endedAtStr = payload["message"]?["endedAt"]?.GetValue<string>();
+                double durationMinutes = 0;
 
-                if (!string.IsNullOrWhiteSpace(tenantId) && !string.IsNullOrWhiteSpace(startedAtStr) && !string.IsNullOrWhiteSpace(endedAtStr))
+                // 1. Try direct duration fields
+                var durMinNode = payload["message"]?["durationMinutes"] ?? payload["message"]?["call"]?["durationMinutes"];
+                if (durMinNode != null && double.TryParse(durMinNode.ToString(), out var parsedMin) && parsedMin > 0)
                 {
-                    if (DateTimeOffset.TryParse(startedAtStr, out var startedAt) && DateTimeOffset.TryParse(endedAtStr, out var endedAt))
+                    durationMinutes = parsedMin;
+                }
+                else
+                {
+                    var durSecNode = payload["message"]?["durationSeconds"] ?? payload["message"]?["call"]?["durationSeconds"];
+                    if (durSecNode != null && double.TryParse(durSecNode.ToString(), out var parsedSec) && parsedSec > 0)
                     {
-                        var durationMinutes = (endedAt - startedAt).TotalMinutes;
-                        if (durationMinutes > 0)
+                        durationMinutes = parsedSec / 60.0;
+                    }
+                    else
+                    {
+                        // 2. Fall back to parsing timestamps (checking both message level and message.call level)
+                        var startedAtStr = payload["message"]?["startedAt"]?.GetValue<string>()
+                                       ?? payload["message"]?["call"]?["startedAt"]?.GetValue<string>();
+                        var endedAtStr = payload["message"]?["endedAt"]?.GetValue<string>()
+                                     ?? payload["message"]?["call"]?["endedAt"]?.GetValue<string>();
+
+                        if (!string.IsNullOrWhiteSpace(startedAtStr) && !string.IsNullOrWhiteSpace(endedAtStr))
                         {
-                            var subscription = await db.TenantSubscriptions.SingleOrDefaultAsync(s => s.TenantId == tenantId);
-                            if (subscription is not null)
+                            if (DateTimeOffset.TryParse(startedAtStr, out var startedAt) && DateTimeOffset.TryParse(endedAtStr, out var endedAt))
                             {
-                                subscription.MinutesUsed += durationMinutes;
-                                await db.SaveChangesAsync();
+                                durationMinutes = (endedAt - startedAt).TotalMinutes;
                             }
                         }
                     }
+                }
+
+                if (!string.IsNullOrWhiteSpace(tenantId) && durationMinutes > 0)
+                {
+                    var subscription = await db.TenantSubscriptions.SingleOrDefaultAsync(s => s.TenantId == tenantId);
+                    if (subscription is not null)
+                    {
+                        subscription.MinutesUsed += durationMinutes;
+                        await db.SaveChangesAsync();
+                        Console.WriteLine($"[Vapi Webhook] Successfully updated tenant {tenantId} call usage. Added {durationMinutes:F2} minutes. Total used: {subscription.MinutesUsed:F2}/{subscription.MonthlyMinutesLimit}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[Vapi Webhook] Tenant subscription not found for tenantId: {tenantId}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[Vapi Webhook] Missing required fields. tenantId='{tenantId}', durationMinutes={durationMinutes}");
                 }
             }
         }
