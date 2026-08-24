@@ -5,8 +5,18 @@ import { useEffect, useRef, useState } from "react";
 
 type CallStatus = "Ready" | "Connecting" | "Listening" | "Speaking" | "Ended";
 
+interface VapiClient {
+  on(event: string, callback: () => void): void;
+  start(assistantId: string, overrides?: Record<string, unknown>): void;
+  stop(): void;
+}
+
+interface CustomWindow {
+  Vapi?: new (key: string) => VapiClient;
+}
+
 export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantName: string }) {
-  const vapiRef = useRef<any>(null);
+  const vapiRef = useRef<VapiClient | null>(null);
   const [status, setStatus] = useState<CallStatus>("Ready");
 
   useEffect(() => {
@@ -14,7 +24,7 @@ export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantN
     if (!key) return;
 
     function initVapi() {
-      const VapiConstructor = (window as any).Vapi;
+      const VapiConstructor = (window as unknown as CustomWindow).Vapi;
       if (!VapiConstructor || vapiRef.current) return;
 
       const vapi = new VapiConstructor(key);
@@ -25,7 +35,7 @@ export function CallWidget({ tenantId, tenantName }: { tenantId: string; tenantN
       vapi.on("speech-end", () => setStatus("Listening"));
     }
 
-    if ((window as any).Vapi) {
+    if ((window as unknown as CustomWindow).Vapi) {
       initVapi();
     } else {
       const script = document.createElement("script");
