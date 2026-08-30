@@ -20,6 +20,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<ServiceItem> Services => Set<ServiceItem>();
     public DbSet<CallLog> CallLogs => Set<CallLog>();
+    public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<LeadTask> LeadTasks => Set<LeadTask>();
+    public DbSet<Quote> Quotes => Set<Quote>();
+    public DbSet<QuoteItem> QuoteItems => Set<QuoteItem>();
+    public DbSet<UnifiedOrder> UnifiedOrders => Set<UnifiedOrder>();
+    public DbSet<UnifiedOrderItem> UnifiedOrderItems => Set<UnifiedOrderItem>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Tenant>(entity => { entity.ToTable("tenants"); entity.HasKey(item => item.TenantId); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Name).HasColumnName("name"); entity.Property(item => item.Status).HasColumnName("status"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
@@ -40,6 +46,96 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         modelBuilder.Entity<OrderItem>(entity => { entity.ToTable("order_items"); entity.HasKey(item => item.Id); entity.Property(item => item.Id).HasColumnName("id"); entity.Property(item => item.OrderId).HasColumnName("order_id"); entity.Property(item => item.ItemId).HasColumnName("item_id"); entity.Property(item => item.Quantity).HasColumnName("quantity"); entity.Property(item => item.UnitPrice).HasColumnName("unit_price"); });
         modelBuilder.Entity<Category>(entity => { entity.ToTable("categories"); entity.HasKey(item => item.Id); entity.Property(item => item.Id).HasColumnName("id"); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Name).HasColumnName("name"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
         modelBuilder.Entity<ServiceItem>(entity => { entity.ToTable("service_items"); entity.HasKey(item => item.Id); entity.Property(item => item.Id).HasColumnName("id"); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Name).HasColumnName("name"); entity.Property(item => item.Description).HasColumnName("description"); entity.Property(item => item.Price).HasColumnName("price"); entity.Property(item => item.DurationMinutes).HasColumnName("duration_minutes"); entity.Property(item => item.Category).HasColumnName("category"); entity.Property(item => item.IsDisabled).HasColumnName("is_disabled"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); entity.Property(item => item.UpdatedAt).HasColumnName("updated_at"); });
-        modelBuilder.Entity<CallLog>(entity => { entity.ToTable("call_logs"); entity.HasKey(item => item.Id); entity.Property(item => item.Id).HasColumnName("id"); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone"); entity.Property(item => item.DurationSeconds).HasColumnName("duration_seconds"); entity.Property(item => item.Transcript).HasColumnName("transcript"); entity.Property(item => item.Summary).HasColumnName("summary"); entity.Property(item => item.RecordingUrl).HasColumnName("recording_url"); entity.Property(item => item.Cost).HasColumnName("cost"); entity.Property(item => item.StartedAt).HasColumnName("started_at"); entity.Property(item => item.EndedAt).HasColumnName("ended_at"); entity.Property(item => item.CallType).HasColumnName("call_type"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
+        modelBuilder.Entity<CallLog>(entity => { entity.ToTable("call_logs"); entity.HasKey(item => item.Id); entity.Property(item => item.Id).HasColumnName("id"); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Identifier).HasColumnName("identifier"); entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone"); entity.Property(item => item.DurationSeconds).HasColumnName("duration_seconds"); entity.Property(item => item.Transcript).HasColumnName("transcript"); entity.Property(item => item.Summary).HasColumnName("summary"); entity.Property(item => item.RecordingUrl).HasColumnName("recording_url"); entity.Property(item => item.Cost).HasColumnName("cost"); entity.Property(item => item.StartedAt).HasColumnName("started_at"); entity.Property(item => item.EndedAt).HasColumnName("ended_at"); entity.Property(item => item.CallType).HasColumnName("call_type"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
+
+        modelBuilder.Entity<Lead>(entity => {
+            entity.ToTable("leads");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.CallLogIdentifier).HasColumnName("call_log_identifier");
+            entity.Property(item => item.Name).HasColumnName("name");
+            entity.Property(item => item.Phone).HasColumnName("phone");
+            entity.Property(item => item.Email).HasColumnName("email");
+            entity.Property(item => item.Stage).HasColumnName("stage");
+            entity.Property(item => item.Score).HasColumnName("score");
+            entity.Property(item => item.AssignedTo).HasColumnName("assigned_to");
+            entity.Property(item => item.Summary).HasColumnName("summary");
+            entity.Property(item => item.Source).HasColumnName("source");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<LeadTask>(entity => {
+            entity.ToTable("lead_tasks");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.LeadId).HasColumnName("lead_id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.Title).HasColumnName("title");
+            entity.Property(item => item.DueDate).HasColumnName("due_date");
+            entity.Property(item => item.IsCompleted).HasColumnName("is_completed");
+            entity.Property(item => item.AssignedTo).HasColumnName("assigned_to");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<Quote>(entity => {
+            entity.ToTable("quotes");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.LeadId).HasColumnName("lead_id");
+            entity.Property(item => item.CustomerName).HasColumnName("customer_name");
+            entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone");
+            entity.Property(item => item.CustomerEmail).HasColumnName("customer_email");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.Subtotal).HasColumnName("subtotal");
+            entity.Property(item => item.TaxRate).HasColumnName("tax_rate");
+            entity.Property(item => item.TaxAmount).HasColumnName("tax_amount");
+            entity.Property(item => item.DiscountAmount).HasColumnName("discount_amount");
+            entity.Property(item => item.TotalAmount).HasColumnName("total_amount");
+            entity.Property(item => item.DigitalSignature).HasColumnName("digital_signature");
+            entity.Property(item => item.SignedAt).HasColumnName("signed_at");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<QuoteItem>(entity => {
+            entity.ToTable("quote_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.QuoteId).HasColumnName("quote_id");
+            entity.Property(item => item.ItemName).HasColumnName("item_name");
+            entity.Property(item => item.Quantity).HasColumnName("quantity");
+            entity.Property(item => item.UnitPrice).HasColumnName("unit_price");
+            entity.Property(item => item.TotalPrice).HasColumnName("total_price");
+        });
+
+        modelBuilder.Entity<UnifiedOrder>(entity => {
+            entity.ToTable("unified_orders");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.CustomerName).HasColumnName("customer_name");
+            entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone");
+            entity.Property(item => item.Source).HasColumnName("source");
+            entity.Property(item => item.OrderType).HasColumnName("order_type");
+            entity.Property(item => item.ScheduledDate).HasColumnName("scheduled_date");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.TotalAmount).HasColumnName("total_amount");
+            entity.Property(item => item.Notes).HasColumnName("notes");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<UnifiedOrderItem>(entity => {
+            entity.ToTable("unified_order_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.OrderId).HasColumnName("order_id");
+            entity.Property(item => item.Name).HasColumnName("name");
+            entity.Property(item => item.Quantity).HasColumnName("quantity");
+            entity.Property(item => item.UnitPrice).HasColumnName("unit_price");
+        });
     }
 }

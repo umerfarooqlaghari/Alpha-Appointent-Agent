@@ -63,6 +63,7 @@ public sealed class CallLog
 {
     public string Id { get; set; } = "";
     public string TenantId { get; set; } = "";
+    public string? Identifier { get; set; }
     public string? CustomerPhone { get; set; }
     public int DurationSeconds { get; set; } = 0;
     public string? Transcript { get; set; }
@@ -73,4 +74,88 @@ public sealed class CallLog
     public DateTimeOffset? EndedAt { get; set; }
     public string CallType { get; set; } = "inbound";
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class Lead
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string? CallLogIdentifier { get; set; }
+    public string Name { get; set; } = "";
+    public string Phone { get; set; } = "";
+    public string? Email { get; set; }
+    public string Stage { get; set; } = "new"; // new, qualified, proposal, won, lost
+    public int Score { get; set; } = 50;
+    public string? AssignedTo { get; set; }
+    public string? Summary { get; set; }
+    public string Source { get; set; } = "manual"; // voice_call, web_form, manual
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class LeadTask
+{
+    public string Id { get; set; } = "";
+    public string LeadId { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string Title { get; set; } = "";
+    public DateTimeOffset? DueDate { get; set; }
+    public bool IsCompleted { get; set; } = false;
+    public string? AssignedTo { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class Quote
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string? LeadId { get; set; }
+    public string CustomerName { get; set; } = "";
+    public string CustomerPhone { get; set; } = "";
+    public string? CustomerEmail { get; set; }
+    public string Status { get; set; } = "draft"; // draft, sent, approved, rejected, converted
+    public decimal Subtotal { get; set; } = 0;
+    public decimal TaxRate { get; set; } = 0;
+    public decimal TaxAmount { get; set; } = 0;
+    public decimal DiscountAmount { get; set; } = 0;
+    public decimal TotalAmount { get; set; } = 0;
+    public string? DigitalSignature { get; set; }
+    public DateTimeOffset? SignedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class QuoteItem
+{
+    public string Id { get; set; } = "";
+    public string QuoteId { get; set; } = "";
+    public string ItemName { get; set; } = "";
+    public int Quantity { get; set; } = 1;
+    public decimal UnitPrice { get; set; } = 0;
+    public decimal TotalPrice { get; set; } = 0;
+}
+
+public sealed class UnifiedOrder
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string CustomerName { get; set; } = "";
+    public string CustomerPhone { get; set; } = "";
+    public string Source { get; set; } = "manual"; // voice_ai, pos, web, manual
+    public string OrderType { get; set; } = "pickup"; // pickup, delivery, service_booking
+    public DateTimeOffset? ScheduledDate { get; set; }
+    public string Status { get; set; } = "new"; // new, in_progress, out_for_delivery, completed, cancelled
+    public decimal TotalAmount { get; set; } = 0;
+    public string? Notes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class UnifiedOrderItem
+{
+    public string Id { get; set; } = "";
+    public string OrderId { get; set; } = "";
+    public string Name { get; set; } = "";
+    public int Quantity { get; set; } = 1;
+    public decimal UnitPrice { get; set; } = 0;
 }

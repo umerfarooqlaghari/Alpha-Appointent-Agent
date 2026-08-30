@@ -7,6 +7,7 @@ import { CallLogsClient, type CallLogItem } from "@/components/call-logs-client"
 interface RawCallLog {
   id: string;
   tenantId: string;
+  identifier?: string | null;
   customerPhone: string | null;
   durationSeconds: number;
   transcript: string | null;
@@ -19,7 +20,7 @@ interface RawCallLog {
   createdAt: string;
 }
 
-async function CallLogsData({ tenantId, decodedTenantId }: { tenantId: string; decodedTenantId: string }) {
+async function CallLogsData({ tenantId: _tenantId, decodedTenantId }: { tenantId: string; decodedTenantId: string }) {
   let initialLogs: CallLogItem[] = [];
   let currency = "USD";
 
@@ -34,6 +35,7 @@ async function CallLogsData({ tenantId, decodedTenantId }: { tenantId: string; d
     initialLogs = rawLogs.map((c: RawCallLog): CallLogItem => ({
       id: c.id,
       tenantId: c.tenantId,
+      identifier: c.identifier,
       customerPhone: c.customerPhone,
       durationSeconds: c.durationSeconds,
       transcript: c.transcript,

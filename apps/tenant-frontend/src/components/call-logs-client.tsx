@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
-import { PhoneCall, Clock, FileText, Trash2, Search, Play, Volume2, Sparkles, X, User, Bot, PhoneIncoming, PhoneOutgoing, Radio } from "lucide-react";
-import { deleteCallLog, createSampleCallLog } from "@/app/dashboard/[tenantId]/call-logs/actions";
+import React, { useState, useEffect } from "react";
+import { PhoneCall, Clock, FileText, Trash2, Search, Volume2, Sparkles, X, User, Bot, PhoneIncoming, PhoneOutgoing, Radio, Tag, Check, Edit2, Loader2 } from "lucide-react";
+import { deleteCallLog, createSampleCallLog, updateCallLogIdentifier } from "@/app/dashboard/[tenantId]/call-logs/actions";
 import { useLoading } from "@/components/loading-provider";
-import { formatPrice } from "@/lib/currency";
 
 export interface CallLogItem {
   id: string;
   tenantId: string;
+  identifier?: string | null;
   customerPhone: string | null;
   durationSeconds: number;
   transcript: string | null;
@@ -57,22 +57,30 @@ function getCallTypeBadge(type?: string) {
 export function CallLogsClient({
   tenantId,
   initialLogs,
-  currency = "USD"
 }: {
   tenantId: string;
   initialLogs: CallLogItem[];
   currency?: string;
 }) {
+  const [logs, setLogs] = useState<CallLogItem[]>(initialLogs);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTranscriptLog, setActiveTranscriptLog] = useState<CallLogItem | null>(null);
+  const [editingIdentifierId, setEditingIdentifierId] = useState<string | null>(null);
+  const [identifierInput, setIdentifierInput] = useState("");
+  const [savingIdentifierId, setSavingIdentifierId] = useState<string | null>(null);
   const { withLoading } = useLoading();
 
-  const filteredLogs = initialLogs.filter(log => {
+  useEffect(() => {
+    setLogs(initialLogs);
+  }, [initialLogs]);
+
+  const filteredLogs = logs.filter(log => {
     const phoneMatch = log.customerPhone?.toLowerCase().includes(searchQuery.toLowerCase());
     const summaryMatch = log.summary?.toLowerCase().includes(searchQuery.toLowerCase());
     const transcriptMatch = log.transcript?.toLowerCase().includes(searchQuery.toLowerCase());
     const typeMatch = log.callType?.toLowerCase().includes(searchQuery.toLowerCase());
-    return !searchQuery || phoneMatch || summaryMatch || transcriptMatch || typeMatch;
+    const identifierMatch = log.identifier?.toLowerCase().includes(searchQuery.toLowerCase());
+    return !searchQuery || phoneMatch || summaryMatch || transcriptMatch || typeMatch || identifierMatch;
   });
 
   const handleDelete = async (id: string) => {
@@ -80,6 +88,7 @@ export function CallLogsClient({
     await withLoading(async () => {
       try {
         await deleteCallLog(tenantId, id);
+        setLogs((prev) => prev.filter((l) => l.id !== id));
       } catch (err: unknown) {
         alert(err instanceof Error ? err.message : "Failed to delete call log");
       }
@@ -96,19 +105,40 @@ export function CallLogsClient({
     });
   };
 
+  const handleStartEditIdentifier = (log: CallLogItem) => {
+    setEditingIdentifierId(log.id);
+    setIdentifierInput(log.identifier || "");
+  };
+
+  const handleSaveIdentifier = async (id: string) => {
+    setSavingIdentifierId(id);
+    const updatedTag = identifierInput.trim() || null;
+    try {
+      await updateCallLogIdentifier(tenantId, id, updatedTag);
+      setLogs((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, identifier: updatedTag } : l))
+      );
+      setEditingIdentifierId(null);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to update identifier");
+    } finally {
+      setSavingIdentifierId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-teal-700">VAPI VOICE ASSISTANT</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight">Call Logs & Transcripts</h2>
+          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">VAPI VOICE ASSISTANT</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Call Logs & Transcripts</h2>
         </div>
         <button
           onClick={handleSeedSample}
-          className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2.5 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+          className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
         >
-          <Sparkles size={18} /> Add Test Log
+          <Sparkles size={16} /> Add Test Log
         </button>
       </div>
 
@@ -118,7 +148,7 @@ export function CallLogsClient({
           <Search className="absolute top-2.5 left-3 text-stone-400" size={18} />
           <input
             type="text"
-            placeholder="Search call logs by phone number, transcript content, or call type..."
+            placeholder="Search by identifier tag, phone number, transcript, or type..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full rounded-md border border-stone-200 py-2 pr-4 pl-10 text-sm focus:border-teal-500 focus:outline-none"
@@ -132,6 +162,7 @@ export function CallLogsClient({
           <thead className="border-b border-stone-100 bg-stone-50/50 text-xs uppercase tracking-wider text-stone-500">
             <tr>
               <th className="px-5 py-4">Customer</th>
+              <th className="px-5 py-4">Identifier / Ref</th>
               <th className="px-5 py-4">Type</th>
               <th className="px-5 py-4">Date & Time</th>
               <th className="px-5 py-4">Duration</th>
@@ -152,6 +183,60 @@ export function CallLogsClient({
                     </div>
                   </div>
                 </td>
+                
+                {/* Identifier Column with inline edit */}
+                <td className="px-5 py-4">
+                  {editingIdentifierId === log.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={identifierInput}
+                        onChange={(e) => setIdentifierInput(e.target.value)}
+                        placeholder="e.g. Lead-101"
+                        className="w-28 rounded border border-teal-500 bg-white px-2 py-1 text-xs font-mono focus:outline-none"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleSaveIdentifier(log.id)}
+                        disabled={savingIdentifierId === log.id}
+                        className="p-1 text-emerald-700 hover:bg-emerald-50 rounded"
+                        title="Save identifier"
+                      >
+                        {savingIdentifierId === log.id ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Check size={14} />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => setEditingIdentifierId(null)}
+                        className="p-1 text-stone-400 hover:bg-stone-100 rounded"
+                        title="Cancel"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 group">
+                      {log.identifier ? (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-0.5 text-xs font-mono font-semibold text-teal-800 border border-stone-200">
+                          <Tag size={11} className="text-teal-600" />
+                          {log.identifier}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-stone-400 italic">No ref</span>
+                      )}
+                      <button
+                        onClick={() => handleStartEditIdentifier(log)}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-stone-400 hover:text-stone-700 transition-opacity"
+                        title="Edit identifier"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                    </div>
+                  )}
+                </td>
+
                 <td className="px-5 py-4">
                   {getCallTypeBadge(log.callType)}
                 </td>
@@ -212,6 +297,7 @@ export function CallLogsClient({
                 </h3>
                 <p className="text-xs text-stone-400 mt-0.5">
                   {new Date(activeTranscriptLog.createdAt).toLocaleString()} • Duration: {formatDuration(activeTranscriptLog.durationSeconds)}
+                  {activeTranscriptLog.identifier && ` • Ref: ${activeTranscriptLog.identifier}`}
                 </p>
               </div>
               <button

@@ -59,3 +59,12 @@ export async function syncVapiCallLogs(tenantId: string, vapiPrivateKey: string,
   revalidatePath(`/dashboard/${encodeURIComponent(tenantId)}/call-logs`);
   return result;
 }
+
+export async function updateCallLogIdentifier(tenantId: string, id: string, identifier: string | null) {
+  await tenantApi(`/api/tenants/${encodeURIComponent(tenantId)}/call-logs/${encodeURIComponent(id)}/identifier`, {
+    method: "PUT",
+    body: JSON.stringify({ identifier })
+  });
+
+  revalidatePath(`/dashboard/${encodeURIComponent(tenantId)}/call-logs`);
+}

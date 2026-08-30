@@ -35,6 +35,20 @@ public sealed class CallLogsController(AppDbContext db) : ControllerBase
         return Results.Ok(log);
     }
 
+    [HttpPut("{id}/identifier")]
+    public async Task<IResult> UpdateCallLogIdentifier(string tenantId, string id, [FromBody] UpdateIdentifierRequest request)
+    {
+        if (!CanAccess(tenantId)) return Results.Forbid();
+
+        var log = await db.CallLogs.SingleOrDefaultAsync(c => c.TenantId == tenantId && c.Id == id);
+        if (log is null) return Results.NotFound();
+
+        log.Identifier = string.IsNullOrWhiteSpace(request.Identifier) ? null : request.Identifier.Trim();
+        await db.SaveChangesAsync();
+
+        return Results.Ok(log);
+    }
+
     [HttpGet("{id}/audio")]
     [AllowAnonymous]
     public async Task<IResult> GetCallAudio(string tenantId, string id, [FromServices] IConfiguration config)
@@ -288,3 +302,5 @@ public sealed record CreateCallLogRequest(
     DateTimeOffset? EndedAt,
     string? CallType
 );
+
+public sealed record UpdateIdentifierRequest(string? Identifier);

@@ -164,6 +164,92 @@ await using (var scope = app.Services.CreateAsyncScope())
         );
         CREATE INDEX IF NOT EXISTS idx_call_logs_tenant ON call_logs (tenant_id);
         ALTER TABLE call_logs ADD COLUMN IF NOT EXISTS call_type TEXT DEFAULT 'inbound';
+        ALTER TABLE call_logs ADD COLUMN IF NOT EXISTS identifier TEXT;
+
+        CREATE TABLE IF NOT EXISTS leads (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            call_log_identifier TEXT,
+            name TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            email TEXT,
+            stage TEXT NOT NULL DEFAULT 'new',
+            score INTEGER NOT NULL DEFAULT 50,
+            assigned_to TEXT,
+            summary TEXT,
+            source TEXT NOT NULL DEFAULT 'manual',
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_leads_tenant ON leads (tenant_id);
+        ALTER TABLE leads ADD COLUMN IF NOT EXISTS call_log_identifier TEXT;
+
+        CREATE TABLE IF NOT EXISTS lead_tasks (
+            id TEXT PRIMARY KEY,
+            lead_id TEXT NOT NULL,
+            tenant_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            due_date TIMESTAMP WITH TIME ZONE,
+            is_completed BOOLEAN NOT NULL DEFAULT FALSE,
+            assigned_to TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_lead_tasks_lead ON lead_tasks (lead_id);
+
+        CREATE TABLE IF NOT EXISTS quotes (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            lead_id TEXT,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            customer_email TEXT,
+            status TEXT NOT NULL DEFAULT 'draft',
+            subtotal NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            tax_rate NUMERIC(5, 2) NOT NULL DEFAULT 0,
+            tax_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            digital_signature TEXT,
+            signed_at TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_quotes_tenant ON quotes (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS quote_items (
+            id TEXT PRIMARY KEY,
+            quote_id TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            quantity INTEGER NOT NULL DEFAULT 1,
+            unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            total_price NUMERIC(12, 2) NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_quote_items_quote ON quote_items (quote_id);
+
+        CREATE TABLE IF NOT EXISTS unified_orders (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            source TEXT NOT NULL DEFAULT 'manual',
+            order_type TEXT NOT NULL DEFAULT 'pickup',
+            scheduled_date TIMESTAMP WITH TIME ZONE,
+            status TEXT NOT NULL DEFAULT 'new',
+            total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            notes TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_unified_orders_tenant ON unified_orders (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS unified_order_items (
+            id TEXT PRIMARY KEY,
+            order_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            quantity INTEGER NOT NULL DEFAULT 1,
+            unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_unified_order_items_order ON unified_order_items (order_id);
         """);
 
     if (!await db.SubscriptionPlans.AnyAsync())
