@@ -33,12 +33,3 @@ obj/
 *.user
 *.cache
 *.db
-apps/backend/obj/Debug/net8.0/backend.AssemblyInfo.cs
-apps/backend/obj/Debug/net8.0/backend.AssemblyInfo.cs
-apps/backend/appsettings.Development.json
-apps/backend/appsettings.json
-apps/backend/bin/Debug/net8.0/appsettings.json
-.env.example
-apps/backend/bin/Debug/net8.0/appsettings.json
-apps/backend/bin/Debug/net8.0/appsettings.json
-apps/backend/appsettings.json
