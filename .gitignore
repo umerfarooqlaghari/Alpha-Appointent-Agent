@@ -33,3 +33,8 @@ obj/
 *.user
 *.cache
 *.db
+apps/backend/.env.example
+apps/backend/appsettings.Development.json
+apps/backend/appsettings.json
+.gitignore
+scripts/dev.sh
