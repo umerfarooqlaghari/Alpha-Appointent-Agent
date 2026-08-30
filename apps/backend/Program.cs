@@ -250,6 +250,85 @@ await using (var scope = app.Services.CreateAsyncScope())
             unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_unified_order_items_order ON unified_order_items (order_id);
+
+        CREATE TABLE IF NOT EXISTS invoices (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            invoice_number TEXT NOT NULL,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            customer_email TEXT,
+            order_id TEXT,
+            quote_id TEXT,
+            lead_id TEXT,
+            invoice_type TEXT NOT NULL DEFAULT 'one_time',
+            subtotal NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            tax_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            discount_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            deposit_required NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            amount_paid NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'unpaid',
+            due_date TIMESTAMP WITH TIME ZONE NOT NULL,
+            payment_link TEXT,
+            payment_gateway TEXT DEFAULT 'stripe',
+            last_reminder_sent_at TIMESTAMP WITH TIME ZONE,
+            dunning_status TEXT DEFAULT 'pending',
+            notes TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_invoices_tenant ON invoices (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS invoice_items (
+            id TEXT PRIMARY KEY,
+            invoice_id TEXT NOT NULL,
+            item_name TEXT NOT NULL,
+            quantity INTEGER NOT NULL DEFAULT 1,
+            unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            total_price NUMERIC(12, 2) NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items (invoice_id);
+
+        CREATE TABLE IF NOT EXISTS invoice_payments (
+            id TEXT PRIMARY KEY,
+            invoice_id TEXT NOT NULL,
+            tenant_id TEXT NOT NULL,
+            amount NUMERIC(12, 2) NOT NULL,
+            payment_method TEXT NOT NULL DEFAULT 'card',
+            transaction_reference TEXT,
+            receipt_url TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_invoice_payments_invoice ON invoice_payments (invoice_id);
+        CREATE INDEX IF NOT EXISTS idx_invoice_payments_tenant ON invoice_payments (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS expenses (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            category TEXT NOT NULL DEFAULT 'supplies',
+            amount NUMERIC(12, 2) NOT NULL,
+            vendor_name TEXT,
+            associated_item_id TEXT,
+            receipt_url TEXT,
+            expense_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            notes TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_expenses_tenant ON expenses (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS item_cogs (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            item_id TEXT NOT NULL,
+            item_type TEXT NOT NULL DEFAULT 'item',
+            unit_cogs NUMERIC(12, 2) NOT NULL DEFAULT 0,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_item_cogs_tenant ON item_cogs (tenant_id);
+        CREATE INDEX IF NOT EXISTS idx_item_cogs_item ON item_cogs (item_id);
         """);
 
     if (!await db.SubscriptionPlans.AnyAsync())

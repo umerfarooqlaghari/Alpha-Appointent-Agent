@@ -117,13 +117,6 @@ public sealed class SalesAnalyticsController(AppDbContext dbContext) : Controlle
 
             // Baseline fallback demonstration for empty state if brand new tenant
             decimal monthTotal = directRev + restRev + quoteRev;
-            if (monthTotal == 0 && i < 3)
-            {
-                // Provide realistic demo distribution if no historical orders
-                monthTotal = (i == 0 ? totalRevenue : (decimal)(500 * (4 - i)));
-                if (monthTotal == 0) monthTotal = 750m * (4 - i);
-                count = Math.Max(1, count + (4 - i));
-            }
 
             monthlyList.Add(new TimeBucket(
                 targetMonth.ToString("MMM yyyy", CultureInfo.InvariantCulture),
@@ -151,11 +144,6 @@ public sealed class SalesAnalyticsController(AppDbContext dbContext) : Controlle
                       + restaurantOrders.Count(ro => ro.CreatedAt >= weekStart && ro.CreatedAt < weekEnd);
 
             decimal weekTotal = directRev + restRev;
-            if (weekTotal == 0 && i < 4)
-            {
-                weekTotal = (decimal)(250 * (8 - i));
-                count = Math.Max(1, count + 2);
-            }
 
             weeklyList.Add(new TimeBucket(
                 i == 0 ? "This Week" : $"Wk -{i}",
@@ -187,14 +175,7 @@ public sealed class SalesAnalyticsController(AppDbContext dbContext) : Controlle
         {
             string cat = "Service Appointments";
             if (!catDict.ContainsKey(cat)) catDict[cat] = (0, 0);
-            catDict[cat] = (catDict[cat].revenue + 75m, catDict[cat].count + 1);
-        }
-
-        if (catDict.Count == 0)
-        {
-            catDict["Consultation & Services"] = (1450m, 12);
-            catDict["Food & Beverages"] = (890m, 45);
-            catDict["Custom Packages"] = (620m, 6);
+            catDict[cat] = (catDict[cat].revenue + 0m, catDict[cat].count + 1);
         }
 
         decimal catTotalRev = catDict.Values.Sum(v => v.revenue);
@@ -222,14 +203,6 @@ public sealed class SalesAnalyticsController(AppDbContext dbContext) : Controlle
             if (!itemAgg.ContainsKey(name)) itemAgg[name] = (cat, 0, 0);
             var curr = itemAgg[name];
             itemAgg[name] = (curr.category, curr.qty + oi.Quantity, curr.rev + (oi.Quantity * oi.UnitPrice));
-        }
-
-        if (itemAgg.Count == 0)
-        {
-            itemAgg["Standard Service Consultation"] = ("Consultation", 14, 1400m);
-            itemAgg["Initial Assessment Call"] = ("Voice AI", 18, 900m);
-            itemAgg["Specialty Combo Platter"] = ("Restaurant", 28, 560m);
-            itemAgg["Custom Proposal Package"] = ("Quotes", 4, 1200m);
         }
 
         var topItems = itemAgg.Select(kvp => new TopItem(

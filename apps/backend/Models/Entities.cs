@@ -159,3 +159,80 @@ public sealed class UnifiedOrderItem
     public int Quantity { get; set; } = 1;
     public decimal UnitPrice { get; set; } = 0;
 }
+
+public sealed class Invoice
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string InvoiceNumber { get; set; } = "";
+    public string CustomerName { get; set; } = "";
+    public string CustomerPhone { get; set; } = "";
+    public string? CustomerEmail { get; set; }
+    public string? OrderId { get; set; }
+    public string? QuoteId { get; set; }
+    public string? LeadId { get; set; }
+    public string InvoiceType { get; set; } = "one_time"; // one_time, recurring_monthly, recurring_yearly
+    public decimal Subtotal { get; set; } = 0;
+    public decimal TaxAmount { get; set; } = 0;
+    public decimal DiscountAmount { get; set; } = 0;
+    public decimal TotalAmount { get; set; } = 0;
+    public decimal DepositRequired { get; set; } = 0;
+    public decimal AmountPaid { get; set; } = 0;
+    public string Status { get; set; } = "unpaid"; // unpaid, partially_paid, paid, overdue, bad_debt, cancelled
+    public DateTimeOffset DueDate { get; set; }
+    public string? PaymentLink { get; set; }
+    public string PaymentGateway { get; set; } = "stripe";
+    public DateTimeOffset? LastReminderSentAt { get; set; }
+    public string DunningStatus { get; set; } = "pending"; // pending, reminded_pre_due, reminded_overdue, escalated, written_off
+    public string? Notes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class InvoiceItem
+{
+    public string Id { get; set; } = "";
+    public string InvoiceId { get; set; } = "";
+    public string ItemName { get; set; } = "";
+    public int Quantity { get; set; } = 1;
+    public decimal UnitPrice { get; set; } = 0;
+    public decimal TotalPrice { get; set; } = 0;
+}
+
+public sealed class InvoicePayment
+{
+    public string Id { get; set; } = "";
+    public string InvoiceId { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public decimal Amount { get; set; } = 0;
+    public string PaymentMethod { get; set; } = "card"; // card, cash, bank_transfer, local_gateway
+    public string? TransactionReference { get; set; }
+    public string? ReceiptUrl { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class Expense
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Category { get; set; } = "supplies"; // supplies, utilities, payroll, cogs_materials, marketing, rent, other
+    public decimal Amount { get; set; } = 0;
+    public string? VendorName { get; set; }
+    public string? AssociatedItemId { get; set; }
+    public string? ReceiptUrl { get; set; }
+    public DateTimeOffset ExpenseDate { get; set; } = DateTimeOffset.UtcNow;
+    public string? Notes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class ItemCogs
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string ItemId { get; set; } = "";
+    public string ItemType { get; set; } = "item"; // item, service
+    public decimal UnitCogs { get; set; } = 0;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}

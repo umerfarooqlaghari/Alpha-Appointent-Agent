@@ -26,6 +26,11 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<QuoteItem> QuoteItems => Set<QuoteItem>();
     public DbSet<UnifiedOrder> UnifiedOrders => Set<UnifiedOrder>();
     public DbSet<UnifiedOrderItem> UnifiedOrderItems => Set<UnifiedOrderItem>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
+    public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
+    public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<ItemCogs> ItemCogs => Set<ItemCogs>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Tenant>(entity => { entity.ToTable("tenants"); entity.HasKey(item => item.TenantId); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Name).HasColumnName("name"); entity.Property(item => item.Status).HasColumnName("status"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
@@ -136,6 +141,88 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(item => item.Name).HasColumnName("name");
             entity.Property(item => item.Quantity).HasColumnName("quantity");
             entity.Property(item => item.UnitPrice).HasColumnName("unit_price");
+        });
+
+        modelBuilder.Entity<Invoice>(entity => {
+            entity.ToTable("invoices");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.InvoiceNumber).HasColumnName("invoice_number");
+            entity.Property(item => item.CustomerName).HasColumnName("customer_name");
+            entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone");
+            entity.Property(item => item.CustomerEmail).HasColumnName("customer_email");
+            entity.Property(item => item.OrderId).HasColumnName("order_id");
+            entity.Property(item => item.QuoteId).HasColumnName("quote_id");
+            entity.Property(item => item.LeadId).HasColumnName("lead_id");
+            entity.Property(item => item.InvoiceType).HasColumnName("invoice_type");
+            entity.Property(item => item.Subtotal).HasColumnName("subtotal");
+            entity.Property(item => item.TaxAmount).HasColumnName("tax_amount");
+            entity.Property(item => item.DiscountAmount).HasColumnName("discount_amount");
+            entity.Property(item => item.TotalAmount).HasColumnName("total_amount");
+            entity.Property(item => item.DepositRequired).HasColumnName("deposit_required");
+            entity.Property(item => item.AmountPaid).HasColumnName("amount_paid");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.DueDate).HasColumnName("due_date");
+            entity.Property(item => item.PaymentLink).HasColumnName("payment_link");
+            entity.Property(item => item.PaymentGateway).HasColumnName("payment_gateway");
+            entity.Property(item => item.LastReminderSentAt).HasColumnName("last_reminder_sent_at");
+            entity.Property(item => item.DunningStatus).HasColumnName("dunning_status");
+            entity.Property(item => item.Notes).HasColumnName("notes");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<InvoiceItem>(entity => {
+            entity.ToTable("invoice_items");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.InvoiceId).HasColumnName("invoice_id");
+            entity.Property(item => item.ItemName).HasColumnName("item_name");
+            entity.Property(item => item.Quantity).HasColumnName("quantity");
+            entity.Property(item => item.UnitPrice).HasColumnName("unit_price");
+            entity.Property(item => item.TotalPrice).HasColumnName("total_price");
+        });
+
+        modelBuilder.Entity<InvoicePayment>(entity => {
+            entity.ToTable("invoice_payments");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.InvoiceId).HasColumnName("invoice_id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.Amount).HasColumnName("amount");
+            entity.Property(item => item.PaymentMethod).HasColumnName("payment_method");
+            entity.Property(item => item.TransactionReference).HasColumnName("transaction_reference");
+            entity.Property(item => item.ReceiptUrl).HasColumnName("receipt_url");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<Expense>(entity => {
+            entity.ToTable("expenses");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.Title).HasColumnName("title");
+            entity.Property(item => item.Category).HasColumnName("category");
+            entity.Property(item => item.Amount).HasColumnName("amount");
+            entity.Property(item => item.VendorName).HasColumnName("vendor_name");
+            entity.Property(item => item.AssociatedItemId).HasColumnName("associated_item_id");
+            entity.Property(item => item.ReceiptUrl).HasColumnName("receipt_url");
+            entity.Property(item => item.ExpenseDate).HasColumnName("expense_date");
+            entity.Property(item => item.Notes).HasColumnName("notes");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<ItemCogs>(entity => {
+            entity.ToTable("item_cogs");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.ItemId).HasColumnName("item_id");
+            entity.Property(item => item.ItemType).HasColumnName("item_type");
+            entity.Property(item => item.UnitCogs).HasColumnName("unit_cogs");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
         });
     }
 }

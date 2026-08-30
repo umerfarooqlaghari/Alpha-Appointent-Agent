@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Settings, Loader2, X } from "lucide-react";
+import { Plus, Settings, Loader2, X, SlidersHorizontal, Layers, ShieldCheck } from "lucide-react";
 import { addTenant, updateTenantSubscription, updateTenantFeatures } from "@/app/actions";
 
 export type SubscriptionInfo = {
@@ -25,22 +25,14 @@ export type TenantResponse = {
 
 export function TenantsDirectoryClient({ initialTenants }: { initialTenants: TenantResponse[] }) {
   const [tenants, setTenants] = useState<TenantResponse[]>(initialTenants);
-  const [activeModalTenant, setActiveModalTenant] = useState<TenantResponse | null>(null);
+  const [activePlanModalTenant, setActivePlanModalTenant] = useState<TenantResponse | null>(null);
+  const [activeFeaturesModalTenant, setActiveFeaturesModalTenant] = useState<TenantResponse | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const featureLabels: Record<string, string> = {
-    slots: "Slots (Availability)",
-    appointments: "Appointments",
-    inventory: "Inventory",
-    menu: "Menu (Restaurant)",
-    orders: "Orders",
-    faqs: "FAQs",
-  };
-
   const handleUpdateSubscription = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!activeModalTenant) return;
+    if (!activePlanModalTenant) return;
     setError(null);
 
     const formData = new FormData(e.currentTarget);
@@ -51,33 +43,23 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
     const industryType = String(formData.get("industryType") || "");
     const currency = String(formData.get("currency") || "USD");
 
-    // Gather disabled tabs based on feature toggles
-    const disabledTabsList: string[] = [];
-    if (!formData.get("feat_catalog")) disabledTabsList.push("inventory", "menu");
-    if (!formData.get("feat_services")) disabledTabsList.push("services");
-    if (!formData.get("feat_orders")) disabledTabsList.push("orders");
-    if (!formData.get("feat_booking")) disabledTabsList.push("slots", "appointments");
-    if (!formData.get("feat_faqs")) disabledTabsList.push("faqs");
-    if (!formData.get("feat_calls")) disabledTabsList.push("call-logs");
-
-    const disabledTabsString = disabledTabsList.join(",");
-    formData.set("disabledTabs", disabledTabsString);
+    // Preserve existing disabledTabs
+    formData.set("disabledTabs", activePlanModalTenant.disabledTabs || "");
 
     startTransition(async () => {
       try {
         await Promise.all([
-          updateTenantSubscription(activeModalTenant.tenantId, formData),
-          updateTenantFeatures(activeModalTenant.tenantId, formData)
+          updateTenantSubscription(activePlanModalTenant.tenantId, formData),
+          updateTenantFeatures(activePlanModalTenant.tenantId, formData)
         ]);
 
         // Optimistically update local state for 0ms instant UI response
         setTenants((prev) =>
           prev.map((t) => {
-            if (t.tenantId === activeModalTenant.tenantId) {
+            if (t.tenantId === activePlanModalTenant.tenantId) {
               const currentSub = t.subscription;
               return {
                 ...t,
-                disabledTabs: disabledTabsString,
                 industryType: industryType || t.industryType,
                 currency: currency || t.currency,
                 subscription: {
@@ -93,10 +75,66 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
           })
         );
 
-        // 0ms instant modal closure
-        setActiveModalTenant(null);
+        setActivePlanModalTenant(null);
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Failed to update subscription.";
+        const msg = err instanceof Error ? err.message : "Failed to update plan quota.";
+        setError(msg);
+      }
+    });
+  };
+
+  const handleUpdateFeatures = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!activeFeaturesModalTenant) return;
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+
+    // Gather disabled tabs based on feature toggles
+    const disabledTabsList: string[] = [];
+    if (!formData.get("feat_catalog")) disabledTabsList.push("inventory", "menu");
+    if (!formData.get("feat_services")) disabledTabsList.push("services");
+    if (!formData.get("feat_orders")) disabledTabsList.push("orders");
+    if (!formData.get("feat_booking")) disabledTabsList.push("slots", "appointments");
+    if (!formData.get("feat_faqs")) disabledTabsList.push("faqs");
+    if (!formData.get("feat_calls")) disabledTabsList.push("call-logs");
+
+    // Sales Module Sub-Modules
+    if (!formData.get("feat_sales_leads")) disabledTabsList.push("leads");
+    if (!formData.get("feat_sales_quotes")) disabledTabsList.push("quotes");
+    if (!formData.get("feat_sales_orders")) disabledTabsList.push("sales-orders");
+    if (!formData.get("feat_sales_analytics")) disabledTabsList.push("sales-analytics");
+
+    // Finance Module Sub-Modules
+    if (!formData.get("feat_fin_invoices")) disabledTabsList.push("invoices");
+    if (!formData.get("feat_fin_expenses")) disabledTabsList.push("expenses");
+    if (!formData.get("feat_fin_receivables")) disabledTabsList.push("receivables");
+
+    const disabledTabsString = disabledTabsList.join(",");
+    formData.set("disabledTabs", disabledTabsString);
+    formData.set("industryType", activeFeaturesModalTenant.industryType || "");
+    formData.set("currency", activeFeaturesModalTenant.currency || "USD");
+
+    startTransition(async () => {
+      try {
+        await updateTenantFeatures(activeFeaturesModalTenant.tenantId, formData);
+
+        // Optimistically update local state for 0ms instant UI response
+        setTenants((prev) =>
+          prev.map((t) => {
+            if (t.tenantId === activeFeaturesModalTenant.tenantId) {
+              return {
+                ...t,
+                disabledTabs: disabledTabsString,
+              };
+            }
+            return t;
+          })
+        );
+
+        setActiveFeaturesModalTenant(null);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to update feature allocations.";
         setError(msg);
       }
     });
@@ -109,7 +147,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
           <p className="text-sm font-semibold text-teal-700">PLATFORM DIRECTORY</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">Tenant management</h1>
           <p className="mt-2 text-sm text-slate-500">
-            Onboard and manage organizations and their call usage quotas.
+            Onboard and manage organizations, call usage quotas, and module feature allocations.
           </p>
         </div>
         <details className="relative">
@@ -118,64 +156,110 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
           </summary>
           <div className="absolute right-0 z-10 mt-2 w-96 rounded-lg border border-slate-200 bg-white p-5 shadow-xl">
             <form action={addTenant} className="space-y-3">
-              <p className="font-semibold">New tenant</p>
-              <input required name="name" placeholder="Organization name" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input required name="tenantId" placeholder="tenant-id" pattern="[a-z0-9-]+" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input required name="adminName" placeholder="Tenant admin name" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input required name="adminEmail" type="email" placeholder="Tenant admin email" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input required name="adminPassword" type="password" placeholder="Temporary admin password" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input name="adminPhone" placeholder="Tenant admin phone" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <select name="adapterType" className="w-full rounded-md border border-slate-200 p-2 text-sm">
-                <option value="postgres">PostgreSQL</option>
-                <option value="shopify">Shopify</option>
-                <option value="pos-http">POS HTTP</option>
-              </select>
-              <select name="industryType" className="w-full rounded-md border border-slate-200 p-2 text-sm">
-                <option value="">Select Industry (Optional)</option>
-                <option value="e-commerce">E-commerce</option>
-                <option value="restaurants">Restaurants</option>
-                <option value="software-and-tech">Software and Tech</option>
-                <option value="other">Other</option>
-              </select>
-              <input name="apiBaseUrl" placeholder="API base URL (optional)" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input name="authHeaderName" placeholder="Auth header name" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <input name="authToken" type="password" placeholder="Auth token" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
-              <button className="w-full rounded-md bg-slate-900 p-2.5 text-sm font-semibold text-white">Create tenant</button>
+              <label className="block text-xs font-medium text-slate-500">
+                Organization Name
+                <input
+                  name="name"
+                  placeholder="e.g. Apex Health Clinic"
+                  required
+                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                />
+              </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Tenant ID (Slug)
+                <input
+                  name="tenantId"
+                  placeholder="e.g. apex-health"
+                  required
+                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                />
+              </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Industry Variant
+                <select
+                  name="industryType"
+                  defaultValue="service"
+                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                >
+                  <option value="restaurant">Restaurant (Menu & Food Orders)</option>
+                  <option value="service">Service / Appointments (Slots & Bookings)</option>
+                  <option value="retail">E-Commerce / Retail (Inventory & Product Orders)</option>
+                  <option value="healthcare">Healthcare / Clinic (Doctor Slots & Visits)</option>
+                  <option value="general">General / Other</option>
+                </select>
+              </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Initial Admin Email
+                <input
+                  name="adminEmail"
+                  type="email"
+                  placeholder="admin@organization.com"
+                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                />
+              </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Initial Admin Password
+                <input
+                  name="adminPassword"
+                  type="password"
+                  placeholder="••••••••"
+                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                />
+              </label>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-800"
+                >
+                  Create Tenant Organization
+                </button>
+              </div>
             </form>
           </div>
         </details>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+      <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table className="w-full text-left text-sm text-slate-600">
+          <thead className="border-b border-slate-100 bg-slate-50/75 text-xs font-semibold uppercase text-slate-500">
             <tr>
-              <th className="px-5 py-4">Organization</th>
-              <th className="px-5 py-4">Tenant ID</th>
-              <th className="px-5 py-4">Active Plan</th>
-              <th className="px-5 py-4">Calling Usage</th>
-              <th className="px-5 py-4">Subscription Period</th>
-              <th className="px-5 py-4 text-right">Actions</th>
+              <th className="px-5 py-3.5">Organization</th>
+              <th className="px-5 py-3.5">Industry / Currency</th>
+              <th className="px-5 py-3.5">Plan / Quota</th>
+              <th className="px-5 py-3.5">Minutes Used</th>
+              <th className="px-5 py-3.5">Status</th>
+              <th className="px-5 py-3.5 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100">
             {tenants.map((tenant) => {
               const sub = tenant.subscription;
-              const pct = sub ? Math.min(100, Math.round((sub.minutesUsed / sub.monthlyMinutesLimit) * 100)) : 0;
+              const pct = sub && sub.monthlyMinutesLimit > 0
+                ? Math.min(100, Math.round((sub.minutesUsed / sub.monthlyMinutesLimit) * 100))
+                : 0;
 
               return (
-                <tr key={tenant.tenantId} className="border-t border-slate-100 align-middle">
-                  <td className="px-5 py-4 font-medium text-slate-900">{tenant.name}</td>
-                  <td className="px-5 py-4 font-mono text-xs text-slate-500">{tenant.tenantId}</td>
+                <tr key={tenant.tenantId} className="hover:bg-slate-50/50 transition">
                   <td className="px-5 py-4">
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                      sub?.planName.toLowerCase() === "unlimited"
-                        ? "bg-purple-50 text-purple-700 border border-purple-100"
-                        : sub?.planName.toLowerCase() === "trial"
-                        ? "bg-teal-50 text-teal-700 border border-teal-100"
-                        : "bg-blue-50 text-blue-700 border border-blue-100"
-                    }`}>
-                      {sub?.planName ?? "No Plan"}
+                    <div className="font-semibold text-slate-900">{tenant.name}</div>
+                    <div className="font-mono text-xs text-slate-400">{tenant.tenantId}</div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 capitalize">
+                      {tenant.industryType || "service"}
+                    </span>
+                    <span className="ml-1.5 font-mono text-xs text-slate-500 font-bold">
+                      {tenant.currency || "USD"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className="font-medium text-slate-900">
+                      {sub?.planName || "Trial"}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -206,13 +290,26 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       <span className="text-slate-400">—</span>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-right">
+                  <td className="px-5 py-4 text-right space-x-2">
                     <button
-                      onClick={() => setActiveModalTenant(tenant)}
+                      onClick={() => {
+                        setError(null);
+                        setActivePlanModalTenant(tenant);
+                      }}
                       type="button"
-                      className="inline-flex items-center gap-1 rounded bg-slate-50 border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
                     >
                       <Settings size={13} /> Edit Plan
+                    </button>
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        setActiveFeaturesModalTenant(tenant);
+                      }}
+                      type="button"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1.5 text-xs font-semibold text-teal-800 hover:bg-teal-100 transition shadow-2xs"
+                    >
+                      <SlidersHorizontal size={13} /> Feature Allocations
                     </button>
                   </td>
                 </tr>
@@ -229,17 +326,17 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
         </table>
       </div>
 
-      {/* 0ms Instant Client Modal */}
-      {activeModalTenant && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-100">
+      {/* Edit Plan / Quota Modal */}
+      {activePlanModalTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-100 p-4">
           <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-100">
             <div className="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">Manage Quota</h3>
-                <p className="text-xs text-slate-500">{activeModalTenant.name} ({activeModalTenant.tenantId})</p>
+                <h3 className="text-lg font-semibold text-slate-900">Edit Plan & Quota</h3>
+                <p className="text-xs text-slate-500">{activePlanModalTenant.name} ({activePlanModalTenant.tenantId})</p>
               </div>
               <button
-                onClick={() => setActiveModalTenant(null)}
+                onClick={() => setActivePlanModalTenant(null)}
                 disabled={isPending}
                 type="button"
                 className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors"
@@ -259,7 +356,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 Plan Name
                 <select
                   name="planName"
-                  defaultValue={activeModalTenant.subscription?.planName ?? "Trial"}
+                  defaultValue={activePlanModalTenant.subscription?.planName ?? "Trial"}
                   disabled={isPending}
                   className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
                 >
@@ -276,17 +373,17 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 <input
                   name="monthlyMinutesLimit"
                   type="number"
-                  defaultValue={activeModalTenant.subscription?.monthlyMinutesLimit ?? 30}
+                  defaultValue={activePlanModalTenant.subscription?.monthlyMinutesLimit ?? 30}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60 font-mono"
                 />
               </label>
 
               <label className="block text-xs font-medium text-slate-500">
-                Status
+                Subscription Status
                 <select
                   name="isActive"
-                  defaultValue={String(activeModalTenant.subscription?.isActive ?? true)}
+                  defaultValue={String(activePlanModalTenant.subscription?.isActive ?? true)}
                   disabled={isPending}
                   className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
                 >
@@ -321,7 +418,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 Industry Variant / Type
                 <select
                   name="industryType"
-                  defaultValue={activeModalTenant.industryType || "service"}
+                  defaultValue={activePlanModalTenant.industryType || "service"}
                   disabled={isPending}
                   className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
                 >
@@ -337,7 +434,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 Tenant Currency
                 <select
                   name="currency"
-                  defaultValue={activeModalTenant.currency || "USD"}
+                  defaultValue={activePlanModalTenant.currency || "USD"}
                   disabled={isPending}
                   className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
                 >
@@ -353,82 +450,10 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 </select>
               </label>
 
-              <div className="pt-2 border-t border-slate-100">
-                <p className="text-xs font-medium text-slate-500 mb-2">Enabled Feature Modules</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_catalog"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("inventory") && !activeModalTenant.disabledTabs?.includes("menu")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    Catalog (Menu / Inventory)
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_services"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("services")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    Services (Service Catalog & Pricing)
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_orders"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("orders")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    Orders (Food & Store Orders)
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_booking"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("slots") && !activeModalTenant.disabledTabs?.includes("appointments")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    Slots & Appointments
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_faqs"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("faqs")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    FAQs Knowledgebase
-                  </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="feat_calls"
-                      value="true"
-                      defaultChecked={!activeModalTenant.disabledTabs?.includes("call-logs")}
-                      disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
-                    />
-                    Call Logs & Transcripts
-                  </label>
-                </div>
-              </div>
-
               <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setActiveModalTenant(null)}
+                  onClick={() => setActivePlanModalTenant(null)}
                   disabled={isPending}
                   className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
                 >
@@ -445,7 +470,239 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       Saving...
                     </>
                   ) : (
-                    "Save Changes"
+                    "Save Plan"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Feature Allocations Modal */}
+      {activeFeaturesModalTenant && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-100 p-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-100 space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="text-teal-700" size={20} />
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900">Feature Allocations</h3>
+                  <p className="text-xs text-slate-500">{activeFeaturesModalTenant.name} ({activeFeaturesModalTenant.tenantId})</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveFeaturesModalTenant(null)}
+                disabled={isPending}
+                type="button"
+                className="rounded-md p-1.5 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {error && (
+              <div className="rounded-md bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateFeatures} className="space-y-4">
+              <p className="text-xs text-slate-500">
+                Control which modules and sub-modules are accessible to this tenant organization:
+              </p>
+
+              {/* Core Features */}
+              <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                  <Layers size={13} className="text-slate-700" /> Core Platform Features
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_catalog"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("inventory") && !activeFeaturesModalTenant.disabledTabs?.includes("menu")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Catalog (Menu / Inventory)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_services"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("services")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Services & Pricing
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_orders"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("orders")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Orders (POS / Food)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_booking"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("slots") && !activeFeaturesModalTenant.disabledTabs?.includes("appointments")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Slots & Appointments
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_faqs"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("faqs")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    FAQs Knowledgebase
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_calls"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("call-logs")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Call Logs & Transcripts
+                  </label>
+                </div>
+              </div>
+
+              {/* Sales Module */}
+              <div className="rounded-lg border border-teal-200 bg-teal-50/40 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-teal-700" /> Sales Module (1.0)
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_sales_leads"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("leads")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    1.1 Leads & Pipeline
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_sales_quotes"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("quotes")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    1.2 Quotes & Proposals
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_sales_orders"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("sales-orders")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    1.3 Unified Orders
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_sales_analytics"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("sales-analytics")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    1.4 Sales Analytics
+                  </label>
+                </div>
+              </div>
+
+              {/* Finance Module */}
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-emerald-700" /> Finance Module (2.0)
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_fin_invoices"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("invoices")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    2.1 Invoicing & Billing
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_fin_expenses"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("expenses")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    2.2 Expense & COGS
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_fin_receivables"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("receivables")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    2.3 Accounts Receivable
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveFeaturesModalTenant(null)}
+                  disabled={isPending}
+                  className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="w-1/2 flex items-center justify-center gap-2 rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 shadow-sm"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Updating Allocations...
+                    </>
+                  ) : (
+                    "Save Allocations"
                   )}
                 </button>
               </div>

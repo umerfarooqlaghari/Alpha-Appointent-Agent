@@ -57,6 +57,19 @@ const salesSubModules: SalesSubModule[] = [
   { label: "Analytics", icon: BarChart3, suffix: "/sales-analytics", badge: "1.4" },
 ];
 
+interface FinanceSubModule {
+  label: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  suffix: string;
+  badge?: string;
+}
+
+const financeSubModules: FinanceSubModule[] = [
+  { label: "Invoicing & Billing", icon: FileText, suffix: "/invoices", badge: "2.1" },
+  { label: "Expense & COGS", icon: CreditCard, suffix: "/expenses", badge: "2.2" },
+  { label: "Accounts Receivable", icon: TrendingUp, suffix: "/receivables", badge: "2.3" },
+];
+
 export function TenantNav({
   tenantId,
   tenantName,
@@ -72,9 +85,23 @@ export function TenantNav({
   const pathname = usePathname();
   const disabledList = disabledTabs.toLowerCase().split(",").map((s) => s.trim());
 
+  const visibleSalesSubModules = salesSubModules.filter((sub) => {
+    const key = sub.suffix.replace("/", "").toLowerCase();
+    return !disabledList.includes(key);
+  });
+
+  const visibleFinanceSubModules = financeSubModules.filter((sub) => {
+    const key = sub.suffix.replace("/", "").toLowerCase();
+    return !disabledList.includes(key);
+  });
+
   // Check if any sales sub-route is active to auto-expand
-  const isSalesActive = salesSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
+  const isSalesActive = visibleSalesSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
   const [isSalesOpen, setIsSalesOpen] = useState<boolean>(true);
+
+  // Check if any finance sub-route is active to auto-expand
+  const isFinanceActive = visibleFinanceSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
+  const [isFinanceOpen, setIsFinanceOpen] = useState<boolean>(true);
 
   const visibleNavItems = mainNavItems.filter((item) => {
     const labelLower = item.label.toLowerCase();
@@ -126,56 +153,112 @@ export function TenantNav({
           })}
 
           {/* Sales Module Group Dropdown */}
-          <div className="pt-2">
-            <button
-              onClick={() => setIsSalesOpen((prev) => !prev)}
-              className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
-                isSalesActive
-                  ? "bg-emerald-50/10 text-white"
-                  : "text-emerald-100 hover:bg-emerald-50/10"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <TrendingUp size={18} className="text-[#ddf070]" />
-                <span>Sales Module</span>
-              </div>
-              {isSalesOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-            </button>
+          {visibleSalesSubModules.length > 0 && (
+            <div className="pt-2">
+              <button
+                onClick={() => setIsSalesOpen((prev) => !prev)}
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
+                  isSalesActive
+                    ? "bg-emerald-50/10 text-white"
+                    : "text-emerald-100 hover:bg-emerald-50/10"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <TrendingUp size={18} className="text-[#ddf070]" />
+                  <span>Sales Module</span>
+                </div>
+                {isSalesOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </button>
 
-            {isSalesOpen && (
-              <div className="ml-4 mt-1 space-y-1 border-l border-emerald-800/50 pl-3">
-                {salesSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
-                  const href = `${basePath}${suffix}`;
-                  const isCurrent = pathname === href;
-                  return (
-                    <Link
-                      key={label}
-                      href={href}
-                      onClick={(e) => {
-                        if (isCurrent) e.preventDefault();
-                      }}
-                      aria-current={isCurrent ? "page" : undefined}
-                      className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
-                        isCurrent
-                          ? "bg-[#ddf070]/20 text-[#ddf070] font-bold cursor-default"
-                          : "text-emerald-200/80 hover:bg-emerald-50/10 hover:text-white"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <SubIcon size={15} />
-                        <span>{label}</span>
-                      </div>
-                      {badge && (
-                        <span className="rounded bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800/40">
-                          {badge}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+              {isSalesOpen && (
+                <div className="ml-4 mt-1 space-y-1 border-l border-emerald-800/50 pl-3">
+                  {visibleSalesSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
+                    const href = `${basePath}${suffix}`;
+                    const isCurrent = pathname === href;
+                    return (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={(e) => {
+                          if (isCurrent) e.preventDefault();
+                        }}
+                        aria-current={isCurrent ? "page" : undefined}
+                        className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                          isCurrent
+                            ? "bg-[#ddf070]/20 text-[#ddf070] font-bold cursor-default"
+                            : "text-emerald-200/80 hover:bg-emerald-50/10 hover:text-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <SubIcon size={15} />
+                          <span>{label}</span>
+                        </div>
+                        {badge && (
+                          <span className="rounded bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800/40">
+                            {badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Finance Module Group Dropdown */}
+          {visibleFinanceSubModules.length > 0 && (
+            <div className="pt-2">
+              <button
+                onClick={() => setIsFinanceOpen((prev) => !prev)}
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
+                  isFinanceActive
+                    ? "bg-emerald-50/10 text-white"
+                    : "text-emerald-100 hover:bg-emerald-50/10"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <CreditCard size={18} className="text-[#ddf070]" />
+                  <span>Finance Module</span>
+                </div>
+                {isFinanceOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </button>
+
+              {isFinanceOpen && (
+                <div className="ml-4 mt-1 space-y-1 border-l border-emerald-800/50 pl-3">
+                  {visibleFinanceSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
+                    const href = `${basePath}${suffix}`;
+                    const isCurrent = pathname === href;
+                    return (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={(e) => {
+                          if (isCurrent) e.preventDefault();
+                        }}
+                        aria-current={isCurrent ? "page" : undefined}
+                        className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                          isCurrent
+                            ? "bg-[#ddf070]/20 text-[#ddf070] font-bold cursor-default"
+                            : "text-emerald-200/80 hover:bg-emerald-50/10 hover:text-white"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <SubIcon size={15} />
+                          <span>{label}</span>
+                        </div>
+                        {badge && (
+                          <span className="rounded bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800/40">
+                            {badge}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
       </div>
 
