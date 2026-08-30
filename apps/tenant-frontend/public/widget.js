@@ -137,6 +137,8 @@
         }
         const data = await response.json();
         verifiedTenantId = data.tenantId;
+        window.RelayDeskIndustryType = data.industryType || '';
+        window.RelayDeskCurrency = data.currency || 'USD';
         window.RelayDeskRemainingSeconds = data.remainingSeconds;
       }
 
@@ -181,18 +183,17 @@
 
         // 3. Start call with overrides
         const maxSecs = window.RelayDeskRemainingSeconds ? Math.min(window.RelayDeskRemainingSeconds, 1800) : 1800;
+        const indType = window.RelayDeskIndustryType || '';
+        const curr = window.RelayDeskCurrency || 'USD';
         
         vapiInstance.start(vapiAssistantId, {
           maxDurationSeconds: maxSecs,
-          assistantOverrides: {
-            variableValues: {
-              tenantId: verifiedTenantId,
-              tenant_id: verifiedTenantId
-            }
-          },
           variableValues: {
             tenantId: verifiedTenantId,
-            tenant_id: verifiedTenantId
+            tenant_id: verifiedTenantId,
+            industryType: indType,
+            industry_type: indType,
+            currency: curr
           }
         });
       });

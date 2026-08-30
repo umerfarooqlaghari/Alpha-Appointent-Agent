@@ -16,6 +16,7 @@ export type Tenant = {
 export type TenantConfig = {
   tenant_id: string;
   adapter_type: "postgres" | "shopify" | "pos-http";
+  industry_type: string | null;
   api_base_url: string | null;
   auth_header_name: string | null;
   auth_token: string | null;
@@ -23,6 +24,7 @@ export type TenantConfig = {
   inventory_source: "database" | "webhook";
   publishable_key: string | null;
   allowed_domains: string | null;
+  disabled_tabs?: string;
 };
 
 export type InventoryItem = {
@@ -70,4 +72,25 @@ export type Faq = {
   answer: string;
   created_at: Date;
   updated_at: Date;
+};
+
+export type RestaurantOrder = {
+  orderId: string;
+  tenantId: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string | null;
+  orderType: string;
+  totalAmount: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type OrderItem = {
+  id: string;
+  orderId: string;
+  itemId: string;
+  quantity: number;
+  unitPrice: number;
 };

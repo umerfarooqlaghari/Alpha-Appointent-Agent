@@ -10,7 +10,7 @@ export async function addTenant(formData: FormData) {
   if (!name || !tenantId) throw new Error("Tenant name and ID are required.");
   if (!/^[a-z0-9-]+$/.test(tenantId)) throw new Error("Tenant ID must use lowercase letters, numbers, and hyphens.");
   if (!allowedAdapters.has(adapterType)) throw new Error("Invalid adapter type.");
-  await adminApi("/api/admin/tenants", { method: "POST", body: JSON.stringify({ tenantId, name, adapterType, apiBaseUrl: String(formData.get("apiBaseUrl") || "") || null, authHeaderName: String(formData.get("authHeaderName") || "") || null, authToken: String(formData.get("authToken") || "") || null, adminName: String(formData.get("adminName") || "") || null, adminEmail: String(formData.get("adminEmail") || ""), adminPassword: String(formData.get("adminPassword") || ""), adminPhone: String(formData.get("adminPhone") || "") || null }) });
+  await adminApi("/api/admin/tenants", { method: "POST", body: JSON.stringify({ tenantId, name, adapterType, industryType: String(formData.get("industryType") || "") || null, apiBaseUrl: String(formData.get("apiBaseUrl") || "") || null, authHeaderName: String(formData.get("authHeaderName") || "") || null, authToken: String(formData.get("authToken") || "") || null, adminName: String(formData.get("adminName") || "") || null, adminEmail: String(formData.get("adminEmail") || ""), adminPassword: String(formData.get("adminPassword") || ""), adminPhone: String(formData.get("adminPhone") || "") || null }) });
   revalidatePath("/tenants");
 }
 
@@ -30,6 +30,21 @@ export async function updateTenantSubscription(tenantId: string, formData: FormD
       resetMinutes,
       resetPeriod,
       currentPeriodEnd: null
+    })
+  });
+  revalidatePath("/tenants");
+}
+
+export async function updateTenantFeatures(tenantId: string, formData: FormData) {
+  const disabledTabs = String(formData.get("disabledTabs") || "");
+  const industryType = String(formData.get("industryType") || "");
+  const currency = String(formData.get("currency") || "USD");
+  await adminApi(`/api/admin/tenants/${encodeURIComponent(tenantId)}/features`, {
+    method: "PUT",
+    body: JSON.stringify({
+      disabledTabs,
+      industryType: industryType || null,
+      currency: currency || "USD"
     })
   });
   revalidatePath("/tenants");

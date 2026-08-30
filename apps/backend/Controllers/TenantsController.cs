@@ -17,14 +17,19 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
     {
         var tenants = await db.Tenants.OrderByDescending(t => t.CreatedAt).ToListAsync();
         var subscriptions = await db.TenantSubscriptions.ToDictionaryAsync(s => s.TenantId);
+        var configs = await db.TenantConfigs.ToDictionaryAsync(c => c.TenantId);
 
         var responseList = tenants.Select(t => {
             subscriptions.TryGetValue(t.TenantId, out var sub);
+            configs.TryGetValue(t.TenantId, out var config);
             return new {
                 t.TenantId,
                 t.Name,
                 t.Status,
                 t.CreatedAt,
+                DisabledTabs = config?.DisabledTabs ?? "",
+                IndustryType = config?.IndustryType ?? "",
+                Currency = config?.Currency ?? "USD",
                 Subscription = sub == null ? null : new {
                     sub.PlanName,
                     sub.MonthlyMinutesLimit,
@@ -38,6 +43,26 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         return Results.Ok(responseList);
     }
 
+    [Authorize(Roles = "superadmin"), HttpPut("admin/tenants/{tenantId}/features")]
+    public async Task<IResult> UpdateTenantFeatures(string tenantId, [FromBody] UpdateFeaturesRequest request)
+    {
+        var config = await db.TenantConfigs.SingleOrDefaultAsync(c => c.TenantId == tenantId);
+        if (config is null) return Results.NotFound();
+
+        config.DisabledTabs = request.DisabledTabs ?? "";
+        if (request.IndustryType is not null)
+        {
+            config.IndustryType = request.IndustryType;
+        }
+        if (request.Currency is not null)
+        {
+            config.Currency = request.Currency;
+        }
+        await db.SaveChangesAsync();
+
+        return Results.NoContent();
+    }
+
     [Authorize(Roles = "superadmin"), HttpPost("admin/tenants")]
     public async Task<IResult> CreateTenant(CreateTenantRequest request)
     {
@@ -47,7 +72,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         try
         {
             db.Tenants.Add(new Tenant { TenantId = request.TenantId, Name = request.Name, Status = "active", CreatedAt = DateTimeOffset.UtcNow });
-            db.TenantConfigs.Add(new TenantConfig { TenantId = request.TenantId, AdapterType = request.AdapterType, ApiBaseUrl = request.ApiBaseUrl, AuthHeaderName = request.AuthHeaderName, AuthToken = request.AuthToken });
+            db.TenantConfigs.Add(new TenantConfig { TenantId = request.TenantId, AdapterType = request.AdapterType, IndustryType = request.IndustryType, ApiBaseUrl = request.ApiBaseUrl, AuthHeaderName = request.AuthHeaderName, AuthToken = request.AuthToken });
             db.Users.Add(new User { TenantId = request.TenantId, Name = request.AdminName ?? request.Name, Email = request.AdminEmail.ToLowerInvariant(), Phone = request.AdminPhone, PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.AdminPassword), Role = "tenant_admin", IsActive = true, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow });
             await db.SaveChangesAsync(); await transaction.CommitAsync(); return Results.Created($"/api/tenants/{request.TenantId}", new { tenantId = request.TenantId });
         }
@@ -55,7 +80,26 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
     }
 
     [AllowAnonymous, HttpGet("tenants/{tenantId}/public")]
-    public async Task<IResult> PublicTenant(string tenantId) => await db.Tenants.Where(item => item.TenantId == tenantId && item.Status == "active").Select(item => new { tenantId = item.TenantId, name = item.Name }).SingleOrDefaultAsync() is { } tenant ? Results.Ok(tenant) : Results.NotFound();
+    public async Task<IResult> PublicTenant(string tenantId)
+    {
+        var tenant = await db.Tenants
+            .Where(t => t.TenantId == tenantId && t.Status == "active")
+            .Select(t => new { tenantId = t.TenantId, name = t.Name })
+            .SingleOrDefaultAsync();
+
+        if (tenant is null) return Results.NotFound();
+
+        var config = await db.TenantConfigs
+            .Where(c => c.TenantId == tenantId)
+            .Select(c => new { c.DisabledTabs, c.IndustryType, c.Currency })
+            .FirstOrDefaultAsync();
+
+        var disabledTabs = config?.DisabledTabs ?? "";
+        var industryType = config?.IndustryType ?? "";
+        var currency = config?.Currency ?? "USD";
+
+        return Results.Ok(new { tenant.tenantId, tenant.name, disabledTabs, industryType, currency });
+    }
 
     [Authorize, HttpGet("tenants/{tenantId}/dashboard")]
     public async Task<IResult> Dashboard(string tenantId)
@@ -140,7 +184,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         if (!new[] { "postgres", "shopify", "pos-http" }.Contains(request.AdapterType)) return Results.BadRequest();
         var config = await db.TenantConfigs.SingleOrDefaultAsync(item => item.TenantId == tenantId);
         if (config is null) { config = new TenantConfig { TenantId = tenantId }; db.TenantConfigs.Add(config); }
-        config.AdapterType = request.AdapterType; config.ApiBaseUrl = request.ApiBaseUrl; config.AuthHeaderName = request.AuthHeaderName; config.AuthToken = request.AuthToken; config.ProductsApiUrl = request.ProductsApiUrl; config.InventorySource = request.InventorySource ?? "database";
+        config.AdapterType = request.AdapterType; config.IndustryType = request.IndustryType; config.ApiBaseUrl = request.ApiBaseUrl; config.AuthHeaderName = request.AuthHeaderName; config.AuthToken = request.AuthToken; config.ProductsApiUrl = request.ProductsApiUrl; config.InventorySource = request.InventorySource ?? "database";
         config.PublishableKey = request.PublishableKey; config.AllowedDomains = request.AllowedDomains;
         await db.SaveChangesAsync(); return Results.NoContent();
     }
@@ -371,7 +415,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         // Unlimited bypass for Superadmin overrides (e.g. for Alpha Devs)
         if (subscription.PlanName.Equals("Unlimited", StringComparison.OrdinalIgnoreCase))
         {
-            return Results.Ok(new { tenantId = config.TenantId, remainingSeconds = 1800 }); // standard Vapi session limit
+            return Results.Ok(new { tenantId = config.TenantId, industryType = config.IndustryType ?? "", remainingSeconds = 1800 }); // standard Vapi session limit
         }
 
         // Trial expiration check
@@ -387,7 +431,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
 
         var remainingSeconds = (int)((subscription.MonthlyMinutesLimit - subscription.MinutesUsed) * 60);
 
-        return Results.Ok(new { tenantId = config.TenantId, remainingSeconds = remainingSeconds });
+        return Results.Ok(new { tenantId = config.TenantId, industryType = config.IndustryType ?? "", currency = config.Currency ?? "USD", remainingSeconds = remainingSeconds });
     }
 
     [HttpPost("public/webhooks/vapi")]
@@ -439,23 +483,102 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
                     }
                 }
 
-                if (!string.IsNullOrWhiteSpace(tenantId) && durationMinutes > 0)
+                if (!string.IsNullOrWhiteSpace(tenantId))
                 {
-                    var subscription = await db.TenantSubscriptions.SingleOrDefaultAsync(s => s.TenantId == tenantId);
-                    if (subscription is not null)
+                    // 1. Update Subscription Minutes Used
+                    if (durationMinutes > 0)
                     {
-                        subscription.MinutesUsed += durationMinutes;
-                        await db.SaveChangesAsync();
-                        Console.WriteLine($"[Vapi Webhook] Successfully updated tenant {tenantId} call usage. Added {durationMinutes:F2} minutes. Total used: {subscription.MinutesUsed:F2}/{subscription.MonthlyMinutesLimit}");
+                        var subscription = await db.TenantSubscriptions.SingleOrDefaultAsync(s => s.TenantId == tenantId);
+                        if (subscription is not null)
+                        {
+                            subscription.MinutesUsed += durationMinutes;
+                            Console.WriteLine($"[Vapi Webhook] Successfully updated tenant {tenantId} call usage. Added {durationMinutes:F2} minutes. Total used: {subscription.MinutesUsed:F2}/{subscription.MonthlyMinutesLimit}");
+                        }
+                    }
+
+                    // 2. Extract call details for call_logs table
+                    var callId = payload["message"]?["call"]?["id"]?.GetValue<string>()
+                                 ?? payload["message"]?["callId"]?.GetValue<string>()
+                                 ?? Guid.NewGuid().ToString();
+
+                    var customerPhone = payload["message"]?["call"]?["customer"]?["number"]?.GetValue<string>()
+                                        ?? payload["message"]?["customer"]?["number"]?.GetValue<string>()
+                                        ?? payload["message"]?["call"]?["phoneNumber"]?["number"]?.GetValue<string>();
+
+                    var transcript = payload["message"]?["transcript"]?.GetValue<string>()
+                                     ?? payload["message"]?["call"]?["transcript"]?.GetValue<string>();
+
+                    var summary = payload["message"]?["summary"]?.GetValue<string>()
+                                  ?? payload["message"]?["analysis"]?["summary"]?.GetValue<string>()
+                                  ?? payload["message"]?["call"]?["analysis"]?["summary"]?.GetValue<string>();
+
+                    var recordingUrl = payload["message"]?["recordingUrl"]?.GetValue<string>()
+                                       ?? payload["message"]?["call"]?["recordingUrl"]?.GetValue<string>()
+                                       ?? payload["message"]?["stereoRecordingUrl"]?.GetValue<string>();
+
+                    decimal cost = 0;
+                    var costNode = payload["message"]?["cost"] ?? payload["message"]?["call"]?["cost"];
+                    if (costNode != null) decimal.TryParse(costNode.ToString(), out cost);
+
+                    DateTimeOffset? startedAt = null;
+                    DateTimeOffset? endedAt = null;
+                    var startedAtStr = payload["message"]?["startedAt"]?.GetValue<string>() ?? payload["message"]?["call"]?["startedAt"]?.GetValue<string>();
+                    var endedAtStr = payload["message"]?["endedAt"]?.GetValue<string>() ?? payload["message"]?["call"]?["endedAt"]?.GetValue<string>();
+                    if (!string.IsNullOrWhiteSpace(startedAtStr) && DateTimeOffset.TryParse(startedAtStr, out var parsedStart)) startedAt = parsedStart;
+                    if (!string.IsNullOrWhiteSpace(endedAtStr) && DateTimeOffset.TryParse(endedAtStr, out var parsedEnd)) endedAt = parsedEnd;
+
+                    var rawType = payload["message"]?["call"]?["type"]?.GetValue<string>()
+                                  ?? payload["message"]?["type"]?.GetValue<string>()
+                                  ?? "inboundPhoneCall";
+
+                    string callType = rawType.ToLower() switch
+                    {
+                        "outboundphonecall" or "outbound" => "outbound",
+                        "webcall" or "web" => "web",
+                        _ => "inbound"
+                    };
+
+                    int durationSec = (int)Math.Round(durationMinutes * 60);
+
+                    // Insert or update CallLog
+                    var existingCallLog = await db.CallLogs.SingleOrDefaultAsync(c => c.Id == callId);
+                    if (existingCallLog is null)
+                    {
+                        db.CallLogs.Add(new CallLog
+                        {
+                            Id = callId,
+                            TenantId = tenantId,
+                            CustomerPhone = customerPhone,
+                            DurationSeconds = durationSec,
+                            Transcript = transcript,
+                            Summary = summary,
+                            RecordingUrl = recordingUrl,
+                            Cost = cost,
+                            StartedAt = startedAt,
+                            EndedAt = endedAt,
+                            CallType = callType,
+                            CreatedAt = DateTimeOffset.UtcNow
+                        });
                     }
                     else
                     {
-                        Console.WriteLine($"[Vapi Webhook] Tenant subscription not found for tenantId: {tenantId}");
+                        existingCallLog.CustomerPhone = customerPhone ?? existingCallLog.CustomerPhone;
+                        existingCallLog.DurationSeconds = durationSec > 0 ? durationSec : existingCallLog.DurationSeconds;
+                        existingCallLog.Transcript = transcript ?? existingCallLog.Transcript;
+                        existingCallLog.Summary = summary ?? existingCallLog.Summary;
+                        existingCallLog.RecordingUrl = recordingUrl ?? existingCallLog.RecordingUrl;
+                        existingCallLog.Cost = cost > 0 ? cost : existingCallLog.Cost;
+                        existingCallLog.StartedAt = startedAt ?? existingCallLog.StartedAt;
+                        existingCallLog.EndedAt = endedAt ?? existingCallLog.EndedAt;
+                        existingCallLog.CallType = callType;
                     }
+
+                    await db.SaveChangesAsync();
+                    Console.WriteLine($"[Vapi Webhook] Successfully logged call {callId} for tenant {tenantId}.");
                 }
                 else
                 {
-                    Console.WriteLine($"[Vapi Webhook] Missing required fields. tenantId='{tenantId}', durationMinutes={durationMinutes}");
+                    Console.WriteLine($"[Vapi Webhook] Missing tenantId for call report.");
                 }
             }
         }
@@ -583,7 +706,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
     private bool CanAccess(string tenantId) => User.IsInRole("superadmin") || User.FindFirstValue("tenant_id") == tenantId;
 }
 
-public sealed record CreateTenantRequest(string TenantId, string Name, string AdapterType, string? ApiBaseUrl, string? AuthHeaderName, string? AuthToken, string? AdminName, string AdminEmail, string AdminPassword, string? AdminPhone);
+public sealed record CreateTenantRequest(string TenantId, string Name, string AdapterType, string? ApiBaseUrl, string? AuthHeaderName, string? AuthToken, string? AdminName, string AdminEmail, string AdminPassword, string? AdminPhone, string? IndustryType, string? Currency);
 public sealed record AvailabilityRequest(string TimeZone, int SlotDurationMinutes, List<WorkingHoursRequest>? WorkingHours, List<HolidayRequest>? Holidays);
 public sealed record WorkingHoursRequest(int DayOfWeek, TimeOnly StartTime, TimeOnly EndTime);
 public sealed record HolidayRequest(DateOnly HolidayDate, string? Name);
@@ -591,8 +714,9 @@ public sealed record AvailabilityResponse(string TimeZone, int SlotDurationMinut
 public sealed record WorkingHoursResponse(int DayOfWeek, TimeOnly StartTime, TimeOnly EndTime);
 public sealed record HolidayResponse(DateOnly HolidayDate, string? Name);
 public sealed record SlotPageResponse(List<AvailabilitySlot> Items, int Total, int Page, int PageSize);
-public sealed record ConfigRequest(string AdapterType, string? ApiBaseUrl, string? AuthHeaderName, string? AuthToken, string? ProductsApiUrl, string? InventorySource, string? PublishableKey, string? AllowedDomains);
+public sealed record ConfigRequest(string AdapterType, string? ApiBaseUrl, string? AuthHeaderName, string? AuthToken, string? ProductsApiUrl, string? InventorySource, string? PublishableKey, string? AllowedDomains, string? IndustryType, string? Currency);
 public sealed record AppointmentResponse(string AppointmentId, string TenantId, string CustomerName, string CustomerPhone, string Service, DateTimeOffset StartTime, DateTimeOffset EndTime, string Status, string? Notes, DateTimeOffset CreatedAt);
 public sealed record UpdateSubscriptionRequest(string PlanName, int MonthlyMinutesLimit, bool IsActive, bool ResetMinutes, bool ResetPeriod, DateTimeOffset? CurrentPeriodEnd);
+public sealed record UpdateFeaturesRequest(string DisabledTabs, string? IndustryType, string? Currency);
 public sealed record CheckoutRequest(string PlanName);
 public sealed record PlanRequest(string PlanName, int MonthlyMinutesLimit, decimal Price, string? Description, bool IsActive);

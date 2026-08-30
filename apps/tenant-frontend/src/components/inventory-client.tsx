@@ -5,13 +5,16 @@ import { Plus, Edit2, Trash2, ShieldAlert, Download, Upload, Search, SlidersHori
 import { upsertItem, deleteItem, toggleItemStatus, bulkUploadInventory } from "@/app/dashboard/[tenantId]/inventory/actions";
 import { type InventoryItem } from "@/lib/db";
 import { useLoading } from "@/components/loading-provider";
+import { formatPrice } from "@/lib/currency";
 
 export function InventoryClient({
   tenantId,
-  initialItems
+  initialItems,
+  currency = "USD"
 }: {
   tenantId: string;
   initialItems: InventoryItem[];
+  currency?: string;
 }) {
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -229,7 +232,7 @@ export function InventoryClient({
                   </td>
                   <td className="px-5 py-4 font-mono text-xs font-medium text-stone-600">{item.sku}</td>
                   <td className="px-5 py-4 text-stone-700">{item.category || "—"}</td>
-                  <td className="px-5 py-4 font-semibold text-stone-900">${Number(item.price).toFixed(2)}</td>
+                  <td className="px-5 py-4 font-semibold text-stone-900">{formatPrice(item.price, currency)}</td>
                   <td className="px-5 py-4">
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                       item.stock_status === "in_stock" 

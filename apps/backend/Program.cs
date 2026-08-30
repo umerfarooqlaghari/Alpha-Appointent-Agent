@@ -103,6 +103,7 @@ await using (var scope = app.Services.CreateAsyncScope())
         ALTER TABLE tenant_configs ADD COLUMN IF NOT EXISTS inventory_source TEXT NOT NULL DEFAULT 'database';
         ALTER TABLE tenant_configs ADD COLUMN IF NOT EXISTS publishable_key TEXT;
         ALTER TABLE tenant_configs ADD COLUMN IF NOT EXISTS allowed_domains TEXT;
+        ALTER TABLE tenant_configs ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'USD';
         CREATE TABLE IF NOT EXISTS faqs (
             id TEXT PRIMARY KEY,
             tenant_id TEXT NOT NULL,
@@ -132,6 +133,37 @@ await using (var scope = app.Services.CreateAsyncScope())
             is_active BOOLEAN NOT NULL DEFAULT TRUE,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
+        CREATE TABLE IF NOT EXISTS service_items (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            price NUMERIC(12, 2),
+            duration_minutes INTEGER,
+            category TEXT NOT NULL DEFAULT 'General',
+            is_disabled BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_service_items_tenant ON service_items (tenant_id);
+        ALTER TABLE service_items ALTER COLUMN duration_minutes DROP NOT NULL;
+        ALTER TABLE service_items ALTER COLUMN price DROP NOT NULL;
+        CREATE TABLE IF NOT EXISTS call_logs (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            customer_phone TEXT,
+            duration_seconds INTEGER DEFAULT 0,
+            transcript TEXT,
+            summary TEXT,
+            recording_url TEXT,
+            cost NUMERIC(10, 4) DEFAULT 0,
+            started_at TIMESTAMPTZ,
+            ended_at TIMESTAMPTZ,
+            call_type TEXT DEFAULT 'inbound',
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        );
+        CREATE INDEX IF NOT EXISTS idx_call_logs_tenant ON call_logs (tenant_id);
+        ALTER TABLE call_logs ADD COLUMN IF NOT EXISTS call_type TEXT DEFAULT 'inbound';
         """);
 
     if (!await db.SubscriptionPlans.AnyAsync())

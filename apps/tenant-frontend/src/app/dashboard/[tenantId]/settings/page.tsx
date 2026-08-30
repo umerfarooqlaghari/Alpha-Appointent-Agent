@@ -7,9 +7,9 @@ import { PublishableKeyInput } from "@/components/publishable-key-input";
 export default async function SettingsPage({ params }: { params: Promise<{ tenantId: string }> }) {
   const { tenantId } = await params;
   const decodedTenantId = decodeTenantId(tenantId);
-  const data = await tenantApi<{ tenantId: string; adapterType: TenantConfig["adapter_type"]; apiBaseUrl: string | null; authHeaderName: string | null; authToken: string | null; productsApiUrl: string | null; inventorySource: TenantConfig["inventory_source"]; publishableKey: string | null; allowedDomains: string | null }>(`/api/tenants/${encodeURIComponent(decodedTenantId)}/config`);
+  const data = await tenantApi<{ tenantId: string; adapterType: TenantConfig["adapter_type"]; industryType: string | null; apiBaseUrl: string | null; authHeaderName: string | null; authToken: string | null; productsApiUrl: string | null; inventorySource: TenantConfig["inventory_source"]; publishableKey: string | null; allowedDomains: string | null }>(`/api/tenants/${encodeURIComponent(decodedTenantId)}/config`);
   console.log("DEBUG CONFIG DATA FROM BACKEND:", data);
-  const config: TenantConfig | undefined = data ? { tenant_id: data.tenantId, adapter_type: data.adapterType, api_base_url: data.apiBaseUrl, auth_header_name: data.authHeaderName, auth_token: data.authToken, products_api_url: data.productsApiUrl, inventory_source: data.inventorySource, publishable_key: data.publishableKey, allowed_domains: data.allowedDomains } : undefined;
+  const config: TenantConfig | undefined = data ? { tenant_id: data.tenantId, adapter_type: data.adapterType, industry_type: data.industryType, api_base_url: data.apiBaseUrl, auth_header_name: data.authHeaderName, auth_token: data.authToken, products_api_url: data.productsApiUrl, inventory_source: data.inventorySource, publishable_key: data.publishableKey, allowed_domains: data.allowedDomains } : undefined;
 
   const subData = await tenantApi<{ planName: string; monthlyMinutesLimit: number; minutesUsed: number; isActive: boolean; daysLeft: number }>(`/api/tenants/${encodeURIComponent(decodedTenantId)}/subscription`).catch(() => null);
   const sub = subData || { planName: "Trial", monthlyMinutesLimit: 30, minutesUsed: 0.0, isActive: true, daysLeft: 14 };

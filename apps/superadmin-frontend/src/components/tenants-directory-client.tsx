@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus, Settings, Loader2, X } from "lucide-react";
-import { addTenant, updateTenantSubscription } from "@/app/actions";
+import { addTenant, updateTenantSubscription, updateTenantFeatures } from "@/app/actions";
 
 export type SubscriptionInfo = {
   planName: string;
@@ -17,6 +17,9 @@ export type TenantResponse = {
   name: string;
   status: string;
   createdAt: string;
+  disabledTabs: string;
+  industryType?: string;
+  currency?: string;
   subscription: SubscriptionInfo | null;
 };
 
@@ -25,6 +28,15 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
   const [activeModalTenant, setActiveModalTenant] = useState<TenantResponse | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const featureLabels: Record<string, string> = {
+    slots: "Slots (Availability)",
+    appointments: "Appointments",
+    inventory: "Inventory",
+    menu: "Menu (Restaurant)",
+    orders: "Orders",
+    faqs: "FAQs",
+  };
 
   const handleUpdateSubscription = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,10 +48,27 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
     const monthlyMinutesLimit = parseInt(String(formData.get("monthlyMinutesLimit") || "30"), 10);
     const isActive = formData.get("isActive") === "true";
     const resetMinutes = formData.get("resetMinutes") === "true";
+    const industryType = String(formData.get("industryType") || "");
+    const currency = String(formData.get("currency") || "USD");
+
+    // Gather disabled tabs based on feature toggles
+    const disabledTabsList: string[] = [];
+    if (!formData.get("feat_catalog")) disabledTabsList.push("inventory", "menu");
+    if (!formData.get("feat_services")) disabledTabsList.push("services");
+    if (!formData.get("feat_orders")) disabledTabsList.push("orders");
+    if (!formData.get("feat_booking")) disabledTabsList.push("slots", "appointments");
+    if (!formData.get("feat_faqs")) disabledTabsList.push("faqs");
+    if (!formData.get("feat_calls")) disabledTabsList.push("call-logs");
+
+    const disabledTabsString = disabledTabsList.join(",");
+    formData.set("disabledTabs", disabledTabsString);
 
     startTransition(async () => {
       try {
-        await updateTenantSubscription(activeModalTenant.tenantId, formData);
+        await Promise.all([
+          updateTenantSubscription(activeModalTenant.tenantId, formData),
+          updateTenantFeatures(activeModalTenant.tenantId, formData)
+        ]);
 
         // Optimistically update local state for 0ms instant UI response
         setTenants((prev) =>
@@ -48,6 +77,9 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
               const currentSub = t.subscription;
               return {
                 ...t,
+                disabledTabs: disabledTabsString,
+                industryType: industryType || t.industryType,
+                currency: currency || t.currency,
                 subscription: {
                   planName,
                   monthlyMinutesLimit,
@@ -97,6 +129,13 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 <option value="postgres">PostgreSQL</option>
                 <option value="shopify">Shopify</option>
                 <option value="pos-http">POS HTTP</option>
+              </select>
+              <select name="industryType" className="w-full rounded-md border border-slate-200 p-2 text-sm">
+                <option value="">Select Industry (Optional)</option>
+                <option value="e-commerce">E-commerce</option>
+                <option value="restaurants">Restaurants</option>
+                <option value="software-and-tech">Software and Tech</option>
+                <option value="other">Other</option>
               </select>
               <input name="apiBaseUrl" placeholder="API base URL (optional)" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
               <input name="authHeaderName" placeholder="Auth header name" className="w-full rounded-md border border-slate-200 p-2 text-sm" />
@@ -277,6 +316,114 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 />
                 Reset trial days / billing period (+14 / +30 days)
               </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Industry Variant / Type
+                <select
+                  name="industryType"
+                  defaultValue={activeModalTenant.industryType || "service"}
+                  disabled={isPending}
+                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                >
+                  <option value="restaurant">Restaurant (Menu & Food Orders)</option>
+                  <option value="service">Service / Appointments (Slots & Bookings)</option>
+                  <option value="retail">E-Commerce / Retail (Inventory & Product Orders)</option>
+                  <option value="healthcare">Healthcare / Clinic (Doctor Slots & Visits)</option>
+                  <option value="general">General / Other</option>
+                </select>
+              </label>
+
+              <label className="block text-xs font-medium text-slate-500">
+                Tenant Currency
+                <select
+                  name="currency"
+                  defaultValue={activeModalTenant.currency || "USD"}
+                  disabled={isPending}
+                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                >
+                  <option value="USD">USD ($ - US Dollar)</option>
+                  <option value="EUR">EUR (€ - Euro)</option>
+                  <option value="GBP">GBP (£ - British Pound)</option>
+                  <option value="CAD">CAD ($ - Canadian Dollar)</option>
+                  <option value="AUD">AUD ($ - Australian Dollar)</option>
+                  <option value="PKR">PKR (Rs - Pakistani Rupee)</option>
+                  <option value="INR">INR (₹ - Indian Rupee)</option>
+                  <option value="AED">AED (AED - UAE Dirham)</option>
+                  <option value="SAR">SAR (SAR - Saudi Riyal)</option>
+                </select>
+              </label>
+
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-xs font-medium text-slate-500 mb-2">Enabled Feature Modules</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_catalog"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("inventory") && !activeModalTenant.disabledTabs?.includes("menu")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Catalog (Menu / Inventory)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_services"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("services")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Services (Service Catalog & Pricing)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_orders"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("orders")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Orders (Food & Store Orders)
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_booking"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("slots") && !activeModalTenant.disabledTabs?.includes("appointments")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Slots & Appointments
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_faqs"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("faqs")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    FAQs Knowledgebase
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_calls"
+                      value="true"
+                      defaultChecked={!activeModalTenant.disabledTabs?.includes("call-logs")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                    />
+                    Call Logs & Transcripts
+                  </label>
+                </div>
+              </div>
 
               <div className="flex items-center gap-3 pt-2">
                 <button

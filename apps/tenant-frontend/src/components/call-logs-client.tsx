@@ -1,0 +1,292 @@
+"use client";
+
+import React, { useState } from "react";
+import { PhoneCall, Clock, FileText, Trash2, Search, Play, Volume2, Sparkles, X, User, Bot, PhoneIncoming, PhoneOutgoing, Radio } from "lucide-react";
+import { deleteCallLog, createSampleCallLog } from "@/app/dashboard/[tenantId]/call-logs/actions";
+import { useLoading } from "@/components/loading-provider";
+import { formatPrice } from "@/lib/currency";
+
+export interface CallLogItem {
+  id: string;
+  tenantId: string;
+  customerPhone: string | null;
+  durationSeconds: number;
+  transcript: string | null;
+  summary: string | null;
+  recordingUrl: string | null;
+  cost: number;
+  startedAt: string | null;
+  endedAt: string | null;
+  callType?: string;
+  createdAt: string;
+}
+
+function formatDuration(totalSeconds: number): string {
+  if (!totalSeconds || totalSeconds <= 0) return "0s";
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${seconds}s`;
+}
+
+function getCallTypeBadge(type?: string) {
+  const t = (type || "inbound").toLowerCase();
+  if (t === "outbound") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+        <PhoneOutgoing size={12} /> Outbound
+      </span>
+    );
+  }
+  if (t === "web") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+        <Radio size={12} /> Web Widget
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+      <PhoneIncoming size={12} /> Inbound
+    </span>
+  );
+}
+
+export function CallLogsClient({
+  tenantId,
+  initialLogs,
+  currency = "USD"
+}: {
+  tenantId: string;
+  initialLogs: CallLogItem[];
+  currency?: string;
+}) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTranscriptLog, setActiveTranscriptLog] = useState<CallLogItem | null>(null);
+  const { withLoading } = useLoading();
+
+  const filteredLogs = initialLogs.filter(log => {
+    const phoneMatch = log.customerPhone?.toLowerCase().includes(searchQuery.toLowerCase());
+    const summaryMatch = log.summary?.toLowerCase().includes(searchQuery.toLowerCase());
+    const transcriptMatch = log.transcript?.toLowerCase().includes(searchQuery.toLowerCase());
+    const typeMatch = log.callType?.toLowerCase().includes(searchQuery.toLowerCase());
+    return !searchQuery || phoneMatch || summaryMatch || transcriptMatch || typeMatch;
+  });
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this call log?")) return;
+    await withLoading(async () => {
+      try {
+        await deleteCallLog(tenantId, id);
+      } catch (err: unknown) {
+        alert(err instanceof Error ? err.message : "Failed to delete call log");
+      }
+    });
+  };
+
+  const handleSeedSample = async () => {
+    await withLoading(async () => {
+      try {
+        await createSampleCallLog(tenantId);
+      } catch (err: unknown) {
+        alert(err instanceof Error ? err.message : "Failed to add sample call log");
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-teal-700">VAPI VOICE ASSISTANT</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight">Call Logs & Transcripts</h2>
+        </div>
+        <button
+          onClick={handleSeedSample}
+          className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2.5 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+        >
+          <Sparkles size={18} /> Add Test Log
+        </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="flex flex-col gap-4 rounded-lg border border-black/5 bg-white p-4 shadow-sm md:flex-row md:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute top-2.5 left-3 text-stone-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search call logs by phone number, transcript content, or call type..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-md border border-stone-200 py-2 pr-4 pl-10 text-sm focus:border-teal-500 focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Call Logs Table */}
+      <div className="overflow-x-auto rounded-lg border border-black/5 bg-white shadow-sm">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-stone-100 bg-stone-50/50 text-xs uppercase tracking-wider text-stone-500">
+            <tr>
+              <th className="px-5 py-4">Customer</th>
+              <th className="px-5 py-4">Type</th>
+              <th className="px-5 py-4">Date & Time</th>
+              <th className="px-5 py-4">Duration</th>
+              <th className="px-5 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-100">
+            {filteredLogs.map((log) => (
+              <tr key={log.id} className="transition hover:bg-stone-50/50">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-teal-700">
+                      <PhoneCall size={15} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-stone-900">{log.customerPhone || "Web Call Widget"}</p>
+                      <p className="text-xs font-mono text-stone-400">{log.id.substring(0, 12)}...</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-5 py-4">
+                  {getCallTypeBadge(log.callType)}
+                </td>
+                <td className="px-5 py-4 text-xs font-medium text-stone-600">
+                  {new Date(log.createdAt).toLocaleString(undefined, {
+                    dateStyle: "medium",
+                    timeStyle: "short"
+                  })}
+                </td>
+                <td className="px-5 py-4">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-1 text-xs font-semibold text-stone-700">
+                    <Clock size={13} className="text-stone-500" />
+                    {formatDuration(log.durationSeconds)}
+                  </span>
+                </td>
+                <td className="px-5 py-4 text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    {log.transcript && (
+                      <button
+                        onClick={() => setActiveTranscriptLog(log)}
+                        className="inline-flex items-center gap-1 rounded-md bg-teal-50 px-2.5 py-1.5 text-xs font-semibold text-teal-800 hover:bg-teal-100 transition-colors"
+                      >
+                        <FileText size={14} /> View Transcript
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(log.id)}
+                      className="p-1.5 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                      title="Delete log"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {filteredLogs.length === 0 && (
+          <div className="rounded-xl border border-dashed border-stone-300 p-12 text-center my-4">
+            <PhoneCall className="mx-auto text-stone-300 mb-3" size={48} />
+            <h3 className="text-lg font-semibold text-stone-900">No call logs yet</h3>
+            <p className="mt-1 text-sm text-stone-500">Both incoming and outgoing Vapi AI calls will automatically appear here with transcripts.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Transcript Modal */}
+      {activeTranscriptLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center border-b border-stone-100 pb-4">
+              <div>
+                <span className="text-xs font-bold text-teal-700 uppercase tracking-wider">CALL TRANSCRIPT & RECORDING</span>
+                <h3 className="text-xl font-bold text-stone-900 mt-0.5">
+                  {activeTranscriptLog.customerPhone || "Web Call Widget"}
+                </h3>
+                <p className="text-xs text-stone-400 mt-0.5">
+                  {new Date(activeTranscriptLog.createdAt).toLocaleString()} • Duration: {formatDuration(activeTranscriptLog.durationSeconds)}
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTranscriptLog(null)}
+                className="rounded-full p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-700 transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Audio Recording Player if present */}
+            {activeTranscriptLog.recordingUrl && (
+              <div className="mt-4 p-3 bg-teal-900 text-white rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-semibold">
+                  <Volume2 size={18} className="text-[#ddf070]" />
+                  <span>Call Audio Recording</span>
+                </div>
+                <audio controls src={`http://127.0.0.1:5000/api/tenants/${encodeURIComponent(tenantId)}/call-logs/${encodeURIComponent(activeTranscriptLog.id)}/audio`} className="h-8 max-w-xs" />
+              </div>
+            )}
+
+            {/* Summary Banner */}
+            {activeTranscriptLog.summary && (
+              <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200/60 p-3 text-xs text-amber-900">
+                <p className="font-bold text-amber-800 mb-0.5 flex items-center gap-1">
+                  <Sparkles size={14} /> AI Call Summary:
+                </p>
+                {activeTranscriptLog.summary}
+              </div>
+            )}
+
+            {/* Transcript Messages */}
+            <div className="mt-4 flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
+              {activeTranscriptLog.transcript?.split("\n").map((line, idx) => {
+                if (!line.trim()) return null;
+                const isUser = line.toLowerCase().startsWith("customer:") || line.toLowerCase().startsWith("user:");
+                const isAi = line.toLowerCase().startsWith("ai:") || line.toLowerCase().startsWith("assistant:");
+                const cleanText = line.replace(/^(customer|user|ai|assistant):\s*/i, "");
+
+                return (
+                  <div
+                    key={idx}
+                    className={`flex gap-3 p-3 rounded-xl text-xs leading-relaxed ${
+                      isUser
+                        ? "bg-stone-100 text-stone-900 ml-6"
+                        : isAi
+                        ? "bg-teal-50 text-teal-950 border border-teal-100 mr-6"
+                        : "bg-stone-50 text-stone-700"
+                    }`}
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {isUser ? <User size={16} className="text-stone-500" /> : <Bot size={16} className="text-teal-700" />}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-bold text-[11px] text-stone-500 mb-0.5">
+                        {isUser ? "Customer" : isAi ? "Vapi AI Assistant" : "System"}
+                      </p>
+                      <p className="text-xs">{cleanText}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 border-t border-stone-100 pt-3 flex justify-end">
+              <button
+                onClick={() => setActiveTranscriptLog(null)}
+                className="rounded-lg bg-stone-900 px-5 py-2 text-xs font-semibold text-white hover:bg-stone-800"
+              >
+                Close Transcript
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
