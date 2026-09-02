@@ -48,8 +48,8 @@ export function UpgradePlanButton({
           isCurrent
             ? "bg-stone-100 text-stone-400 cursor-not-allowed"
             : isPopular
-            ? "bg-[#12382e] text-white hover:bg-teal-900"
-            : "border border-stone-200 bg-white text-stone-800 hover:bg-stone-50"
+            ? "bg-[#080C42] text-white hover:bg-[#071D75]"
+            : "border border-slate-200 bg-white text-[#080C42] hover:bg-slate-50 font-semibold"
         }`}
       >
         {loading ? (

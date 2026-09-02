@@ -30,101 +30,101 @@ export default async function SettingsPage({ params }: { params: Promise<{ tenan
   return (
     <DashboardShell tenantId={tenantId}>
       <div className="mx-auto max-w-2xl">
-        <p className="text-sm font-semibold text-teal-700">BILLING & METRICS</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight">Plan & Subscriptions</h2>
+        <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">BILLING & METRICS</p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#080C42]">Plan & Subscriptions</h2>
         
         {/* Subscription Info Card */}
-        <div className="mt-6 rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+        <div className="mt-6 rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
           <div className="flex items-center justify-between">
             <div>
-              <span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700 uppercase tracking-wide">
+              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-[#071D75] uppercase tracking-wide">
                 {sub.planName} Plan
               </span>
-              <h3 className="mt-3 text-lg font-semibold text-stone-900">Vapi Voice minutes Package</h3>
-              <p className="text-xs text-stone-500 mt-1">Your calling package limits and remaining days.</p>
+              <h3 className="mt-3 text-lg font-bold text-[#080C42]">Vapi Voice minutes Package</h3>
+              <p className="text-xs text-slate-500 mt-1">Your calling package limits and remaining days.</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-teal-950">{sub.daysLeft} days</p>
-              <p className="text-xs text-stone-500">remaining in period</p>
+              <p className="text-2xl font-bold text-[#080C42]">{sub.daysLeft} days</p>
+              <p className="text-xs text-slate-500">remaining in period</p>
             </div>
           </div>
 
           {sub.planName.toLowerCase() !== "unlimited" ? (
             <div className="mt-5">
-              <div className="flex items-center justify-between text-sm text-stone-700 font-medium">
+              <div className="flex items-center justify-between text-sm text-slate-700 font-medium">
                 <span>Usage ({Math.round(sub.minutesUsed * 10) / 10} / {sub.monthlyMinutesLimit} minutes)</span>
-                <span>{percentage}%</span>
+                <span className="text-[#071D75] font-bold">{percentage}%</span>
               </div>
-              <div className="mt-2 h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+              <div className="mt-2 h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
                 <div 
-                  className="h-full rounded-full bg-teal-600 transition-all duration-300"
+                  className="h-full rounded-full bg-[#071D75] transition-all duration-300"
                   style={{ width: `${percentage}%` }}
                 />
               </div>
             </div>
           ) : (
-            <div className="mt-5 flex items-center gap-2 text-sm text-teal-800 font-medium bg-teal-50/50 p-3 rounded-md border border-teal-100">
-              <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse"></span>
+            <div className="mt-5 flex items-center gap-2 text-sm text-[#080C42] font-medium bg-blue-50/50 p-3 rounded-md border border-blue-100">
+              <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse"></span>
               Unlimited calling plan override is active for development/trial.
             </div>
           )}
         </div>
 
-        <p className="text-sm font-semibold text-teal-700 mt-10">INTEGRATIONS</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight">Connection settings</h2>
-        <form action={updateTenantConfig.bind(null, decodedTenantId)} autoComplete="off" className="mt-7 space-y-5 rounded-lg border border-black/5 bg-white p-6 shadow-sm">
-          <label className="block text-sm font-medium">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#071D75] mt-10">INTEGRATIONS</p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#080C42]">Connection settings</h2>
+        <form action={updateTenantConfig.bind(null, decodedTenantId)} autoComplete="off" className="mt-7 space-y-5 rounded-xl border border-slate-200/80 bg-white p-6 shadow-xs">
+          <label className="block text-sm font-medium text-slate-700">
             Adapter type
-            <select name="adapterType" defaultValue={config?.adapter_type ?? "postgres"} className="mt-1 block w-full rounded-md border border-stone-200 p-2">
+            <select name="adapterType" defaultValue={config?.adapter_type ?? "postgres"} className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none">
               <option value="postgres">PostgreSQL</option>
               <option value="shopify">Shopify</option>
               <option value="pos-http">POS HTTP</option>
             </select>
           </label>
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-slate-700">
             API base URL
-            <input name="apiBaseUrl" defaultValue={config?.api_base_url ?? ""} type="url" placeholder="https://api.example.com" autoComplete="off" className="mt-1 block w-full rounded-md border border-stone-200 p-2" />
+            <input name="apiBaseUrl" defaultValue={config?.api_base_url ?? ""} type="url" placeholder="https://api.example.com" autoComplete="off" className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-slate-700">
             Inventory Source (database catalog vs webhook URL)
-            <select name="inventorySource" defaultValue={config?.inventory_source ?? "database"} className="mt-1 block w-full rounded-md border border-stone-200 p-2">
+            <select name="inventorySource" defaultValue={config?.inventory_source ?? "database"} className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none">
               <option value="database">Local Database Catalog (Seeded)</option>
               <option value="webhook">Custom HTTP Webhook API URL</option>
             </select>
           </label>
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-slate-700">
             Products API URL (for Webhooks)
-            <input name="productsApiUrl" defaultValue={config?.products_api_url ?? ""} type="url" placeholder="https://api.example.com/products" autoComplete="off" className="mt-1 block w-full rounded-md border border-stone-200 p-2" />
+            <input name="productsApiUrl" defaultValue={config?.products_api_url ?? ""} type="url" placeholder="https://api.example.com/products" autoComplete="off" className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-slate-700">
             Auth header name
-            <input name="authHeaderName" defaultValue={config?.auth_header_name ?? ""} placeholder="Authorization" autoComplete="off" className="mt-1 block w-full rounded-md border border-stone-200 p-2" />
+            <input name="authHeaderName" defaultValue={config?.auth_header_name ?? ""} placeholder="Authorization" autoComplete="off" className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
           </label>
-          <label className="block text-sm font-medium">
+          <label className="block text-sm font-medium text-slate-700">
             Auth token
-            <input name="authToken" defaultValue={config?.auth_token ?? ""} type="password" autoComplete="new-password" className="mt-1 block w-full rounded-md border border-stone-200 p-2" />
+            <input name="authToken" defaultValue={config?.auth_token ?? ""} type="password" autoComplete="new-password" className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
           </label>
           
-          <div className="border-t border-stone-100 pt-5 mt-5">
-            <h3 className="text-md font-semibold text-stone-900 mb-4">Embeddable Call Widget Settings</h3>
-            <label className="block text-sm font-medium">
+          <div className="border-t border-slate-100 pt-5 mt-5">
+            <h3 className="text-md font-bold text-[#080C42] mb-4">Embeddable Call Widget Settings</h3>
+            <label className="block text-sm font-medium text-slate-700">
               Publishable Key (for external call widget integration)
               <PublishableKeyInput initialValue={config?.publishable_key ?? ""} />
             </label>
-            <label className="block text-sm font-medium mt-3">
+            <label className="block text-sm font-medium text-slate-700 mt-3">
               Whitelisted Domains (comma separated, e.g. localhost, example.com)
-              <input name="allowedDomains" defaultValue={config?.allowed_domains ?? ""} placeholder="localhost, example.com" autoComplete="off" className="mt-1 block w-full rounded-md border border-stone-200 p-2" />
+              <input name="allowedDomains" defaultValue={config?.allowed_domains ?? ""} placeholder="localhost, example.com" autoComplete="off" className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
             </label>
             {config?.publishable_key && (
-              <div className="mt-5 rounded-md bg-stone-50 p-4 border border-stone-200">
-                <h4 className="text-xs font-semibold text-stone-700 uppercase tracking-wider mb-2">Embed HTML Code</h4>
-                <p className="text-xs text-stone-500 mb-3">Copy and paste this script tag into the HTML of your website where you want the call button to appear:</p>
-                <pre className="overflow-x-auto rounded bg-stone-900 p-3 text-xs text-emerald-400 font-mono select-all leading-relaxed whitespace-pre">{embedCode}</pre>
+              <div className="mt-5 rounded-lg bg-slate-50 p-4 border border-slate-200">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Embed HTML Code</h4>
+                <p className="text-xs text-slate-500 mb-3">Copy and paste this script tag into the HTML of your website where you want the call button to appear:</p>
+                <pre className="overflow-x-auto rounded-md bg-[#080C42] p-3.5 text-xs text-blue-200 font-mono select-all leading-relaxed whitespace-pre">{embedCode}</pre>
               </div>
             )}
           </div>
           
-          <button className="rounded-md bg-[#12382e] px-4 py-2.5 text-sm font-semibold text-white">Save connection</button>
+          <button className="rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all">Save connection</button>
         </form>
       </div>
     </DashboardShell>

@@ -164,7 +164,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#071D75] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
             <Briefcase size={11} /> Direct Sale
           </span>
         );
@@ -178,9 +178,9 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
       case "pos":
         return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"><Monitor size={11} /> POS</span>;
       case "web":
-        return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"><Globe size={11} /> Web</span>;
+        return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#071D75] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"><Globe size={11} /> Web</span>;
       default:
-        return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-700 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-full"><UserCheck size={11} /> Manual</span>;
+        return <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full"><UserCheck size={11} /> Manual</span>;
     }
   };
 
@@ -206,12 +206,12 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
       {/* Header Banner */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">UNIFIED FULFILLMENT</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Unified Orders & Bookings</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">UNIFIED FULFILLMENT</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-[#080C42]">Unified Orders & Bookings</h2>
         </div>
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#080C42]"
         >
           <Plus size={16} /> New Unified Order
         </button>
@@ -221,7 +221,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
       <div className="space-y-2.5">
         {/* Origin Filter */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider mr-1">Source Origin:</span>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Source Origin:</span>
           {[
             { id: "all", label: "All Channels" },
             { id: "direct_sales", label: "Direct Sales" },
@@ -233,8 +233,8 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
               onClick={() => setActiveOriginTab(tab.id)}
               className={`rounded-full px-3 py-1 text-xs font-semibold transition border ${
                 activeOriginTab === tab.id
-                  ? "bg-teal-900 text-white border-teal-900 shadow-xs"
-                  : "bg-white text-stone-600 border-stone-200 hover:bg-stone-50"
+                  ? "bg-[#080C42] text-white border-[#080C42] shadow-xs"
+                  : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
               }`}
             >
               {tab.label} ({orders.filter((o) => tab.id === "all" || (o.origin || "direct_sales") === tab.id).length})
@@ -243,18 +243,18 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
         </div>
 
         {/* Status Lifecycle Filter */}
-        <div className="flex flex-wrap gap-1.5 rounded-lg border border-stone-200 bg-stone-100 p-1.5">
+        <div className="flex flex-wrap gap-1.5 rounded-xl border border-slate-200 bg-slate-100 p-1.5">
           {["all", "new", "in_progress", "out_for_delivery", "completed", "cancelled"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveStatusTab(tab)}
-              className={`rounded-md px-3.5 py-1.5 text-xs font-semibold uppercase transition ${
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                 activeStatusTab === tab
-                  ? "bg-white text-stone-900 shadow-xs"
-                  : "text-stone-600 hover:bg-stone-200/60"
+                  ? "bg-[#080C42] text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              {tab.replace(/_/g, " ")} ({orders.filter((o) => (activeOriginTab === "all" || (o.origin || "direct_sales") === activeOriginTab) && (tab === "all" || o.status === tab)).length})
+              {tab.replace(/_/g, " ").toUpperCase()}
             </button>
           ))}
         </div>
@@ -263,14 +263,14 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
       {/* Orders Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         {filteredOrders.length === 0 ? (
-          <div className="col-span-full rounded-xl border border-dashed border-stone-300 p-12 text-center text-sm text-stone-400">
+          <div className="col-span-full rounded-2xl border border-dashed border-slate-300 p-12 text-center text-sm text-slate-400">
             No orders found in this filter selection.
           </div>
         ) : (
           filteredOrders.map((order) => (
             <div
               key={order.id}
-              className="flex flex-col justify-between rounded-xl border border-stone-200 bg-white p-5 shadow-xs hover:border-teal-500 transition-all space-y-4"
+              className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-xs hover:border-[#071D75] transition-all space-y-4"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
@@ -279,22 +279,22 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                       {getOriginBadge(order.origin)}
                       {getSourceBadge(order.source)}
                     </div>
-                    <h3 className="text-base font-bold text-stone-900">{order.customerName}</h3>
-                    <p className="text-xs text-stone-500 font-mono">{order.customerPhone}</p>
+                    <h3 className="text-base font-bold text-[#080C42]">{order.customerName}</h3>
+                    <p className="text-xs text-slate-500 font-mono">{order.customerPhone}</p>
                   </div>
-                  <span className="font-mono text-xs font-bold text-stone-400">#{order.id.substring(0, 7)}</span>
+                  <span className="font-mono text-xs font-bold text-slate-400">#{order.id.substring(0, 7)}</span>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-stone-100 text-xs">
-                  <span className="text-stone-600 font-medium capitalize">{order.orderType.replace(/_/g, " ")}</span>
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                  <span className="text-slate-600 font-medium capitalize">{order.orderType.replace(/_/g, " ")}</span>
                   {getStatusBadge(order.status)}
                 </div>
 
                 {/* Scheduled Date if available */}
                 {order.scheduledDate && (
-                  <div className="flex items-center justify-between rounded-md border border-stone-200 bg-stone-50 p-2 text-xs text-stone-700">
+                  <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700">
                     <span className="flex items-center gap-1.5 font-medium truncate">
-                      <Calendar size={13} className="text-teal-700 shrink-0" />
+                      <Calendar size={13} className="text-[#071D75] shrink-0" />
                       <span className="truncate">{new Date(order.scheduledDate).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</span>
                     </span>
                     <button
@@ -302,7 +302,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                         setReschedulingOrder(order);
                         setRescheduleDateValue(order.scheduledDate ? new Date(order.scheduledDate).toISOString().slice(0, 16) : "");
                       }}
-                      className="text-xs font-semibold text-teal-700 hover:underline flex items-center gap-1 shrink-0"
+                      className="text-xs font-bold text-[#071D75] hover:underline flex items-center gap-1 shrink-0"
                     >
                       <Clock size={12} /> Reschedule
                     </button>
@@ -310,8 +310,8 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                 )}
 
                 {/* Items Summary */}
-                <div className="rounded-md border border-stone-200 bg-stone-50 p-3 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between font-bold text-stone-700 pb-1 border-b border-stone-200">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between font-bold text-slate-700 pb-1 border-b border-slate-200">
                     <span>Items ({order.items?.length || 0})</span>
                     {(order.origin === "direct_sales" || !order.origin) && (
                       <button
@@ -319,40 +319,40 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                           setEditingOrder(order);
                           setEditItemsList(order.items || []);
                         }}
-                        className="text-xs font-semibold text-teal-700 hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-[#071D75] hover:underline flex items-center gap-1"
                       >
                         <Edit3 size={12} /> Edit Items
                       </button>
                     )}
                   </div>
                   {order.items?.map((item, idx) => (
-                    <div key={idx} className="flex justify-between text-stone-700">
+                    <div key={idx} className="flex justify-between text-slate-700">
                       <span className="truncate pr-2">{item.name} x{item.quantity}</span>
                       <span className="font-mono shrink-0">${(item.quantity * item.unitPrice).toFixed(2)}</span>
                     </div>
                   ))}
-                  <div className="flex justify-between font-bold text-stone-900 pt-1 border-t border-stone-200 text-sm">
+                  <div className="flex justify-between font-bold text-slate-900 pt-1 border-t border-slate-200 text-sm">
                     <span>Total Amount:</span>
-                    <span className="font-mono text-teal-800">${order.totalAmount.toFixed(2)}</span>
+                    <span className="font-mono text-[#071D75] font-bold">${order.totalAmount.toFixed(2)}</span>
                   </div>
                 </div>
 
                 {order.notes && (
-                  <p className="text-xs italic text-stone-600 bg-stone-50 p-2 rounded border border-stone-200 leading-relaxed">
+                  <p className="text-xs italic text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200 leading-relaxed">
                     &quot;{order.notes}&quot;
                   </p>
                 )}
               </div>
 
               {/* Status transition dropdown */}
-              <div className="pt-3 border-t border-stone-100">
-                <label className="block text-[11px] font-bold text-stone-500 uppercase mb-1">Status Lifecycle</label>
+              <div className="pt-3 border-t border-slate-100">
+                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Status Lifecycle</label>
                 <div className="flex items-center gap-2">
                   <select
                     value={order.status}
                     disabled={updatingStatusOrderId === order.id}
                     onChange={(e) => handleUpdateStatus(order.id, e.target.value)}
-                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-900 focus:outline-none disabled:opacity-50"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:outline-none disabled:opacity-50"
                   >
                     <option value="new">New</option>
                     <option value="in_progress">In Progress</option>
@@ -361,7 +361,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                     <option value="cancelled">Cancelled</option>
                   </select>
                   {updatingStatusOrderId === order.id && (
-                    <Loader2 size={16} className="animate-spin text-teal-600 shrink-0" />
+                    <Loader2 size={16} className="animate-spin text-[#071D75] shrink-0" />
                   )}
                 </div>
               </div>
@@ -373,10 +373,10 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
       {/* Create Order Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-xl rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-stone-900">
-                <ShoppingBag className="text-teal-700" size={18} /> Create Unified Order
+          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[#080C42]">
+                <ShoppingBag className="text-[#071D75]" size={18} /> Create Unified Order
               </h3>
               <button onClick={() => setIsCreateOpen(false)} className="text-stone-400 hover:text-stone-600">
                 <X size={18} />
@@ -465,7 +465,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
                 <button
                   type="submit"
                   disabled={isCreatingOrder}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
                 >
                   {isCreatingOrder && <Loader2 size={16} className="animate-spin" />}
                   Create Order
@@ -529,7 +529,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
               ))}
               <button
                 onClick={() => setEditItemsList((prev) => [...prev, { name: "New Line Item", quantity: 1, unitPrice: 25 }])}
-                className="text-xs font-semibold text-teal-700 hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-[#071D75] hover:underline flex items-center gap-1"
               >
                 <Plus size={14} /> Add Line Item
               </button>
@@ -545,7 +545,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
               <button
                 onClick={() => handleSaveEditItems(editingOrder.id)}
                 disabled={isSavingEditItems}
-                className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
               >
                 {isSavingEditItems && <Loader2 size={16} className="animate-spin" />}
                 Save Line Items
@@ -586,7 +586,7 @@ export function SalesOrdersClient({ tenantId, initialOrders }: { tenantId: strin
               <button
                 onClick={() => handleSaveReschedule(reschedulingOrder.id)}
                 disabled={isSavingReschedule}
-                className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
               >
                 {isSavingReschedule && <Loader2 size={16} className="animate-spin" />}
                 Confirm Reschedule

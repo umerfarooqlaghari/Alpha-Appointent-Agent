@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
@@ -121,11 +122,21 @@ export function TenantNav({
   ];
 
   return (
-    <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-emerald-950/10 bg-[#12382e] p-5 text-emerald-50">
+    <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-[#080C42] p-5 text-blue-50">
       <div>
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">Relay Desk</p>
-          <h1 className="mt-2 text-lg font-semibold">{tenantName}</h1>
+        <div className="mb-8 flex items-center gap-3">
+          <div className="relative size-10 shrink-0 overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-md">
+            <Image
+              src="/logo.jpg"
+              alt="Logo"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">Relay Desk</p>
+            <h1 className="truncate text-base font-bold text-white" title={tenantName}>{tenantName}</h1>
+          </div>
         </div>
 
         <nav className="space-y-1">
@@ -142,8 +153,8 @@ export function TenantNav({
                 aria-current={isCurrent ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
                   isCurrent
-                    ? "bg-emerald-50/15 text-white cursor-default"
-                    : "text-emerald-100 hover:bg-emerald-50/10"
+                    ? "bg-[#071D75] text-white shadow-sm font-semibold cursor-default"
+                    : "text-blue-100/90 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <Icon size={18} />
@@ -159,19 +170,19 @@ export function TenantNav({
                 onClick={() => setIsSalesOpen((prev) => !prev)}
                 className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
                   isSalesActive
-                    ? "bg-emerald-50/10 text-white"
-                    : "text-emerald-100 hover:bg-emerald-50/10"
+                    ? "bg-white/10 text-white"
+                    : "text-blue-100/90 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <TrendingUp size={18} className="text-[#ddf070]" />
+                  <TrendingUp size={18} className="text-blue-300" />
                   <span>Sales Module</span>
                 </div>
                 {isSalesOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
 
               {isSalesOpen && (
-                <div className="ml-4 mt-1 space-y-1 border-l border-emerald-800/50 pl-3">
+                <div className="ml-4 mt-1 space-y-1 border-l border-blue-800/50 pl-3">
                   {visibleSalesSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
                     const href = `${basePath}${suffix}`;
                     const isCurrent = pathname === href;
@@ -185,8 +196,8 @@ export function TenantNav({
                         aria-current={isCurrent ? "page" : undefined}
                         className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
                           isCurrent
-                            ? "bg-[#ddf070]/20 text-[#ddf070] font-bold cursor-default"
-                            : "text-emerald-200/80 hover:bg-emerald-50/10 hover:text-white"
+                            ? "bg-[#071D75] text-white font-bold cursor-default shadow-xs"
+                            : "text-blue-200/80 hover:bg-white/10 hover:text-white"
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -194,7 +205,7 @@ export function TenantNav({
                           <span>{label}</span>
                         </div>
                         {badge && (
-                          <span className="rounded bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800/40">
+                          <span className="rounded bg-[#071D75]/60 px-1.5 py-0.5 text-[10px] font-mono text-blue-200 border border-blue-500/30">
                             {badge}
                           </span>
                         )}
@@ -213,19 +224,19 @@ export function TenantNav({
                 onClick={() => setIsFinanceOpen((prev) => !prev)}
                 className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
                   isFinanceActive
-                    ? "bg-emerald-50/10 text-white"
-                    : "text-emerald-100 hover:bg-emerald-50/10"
+                    ? "bg-white/10 text-white"
+                    : "text-blue-100/90 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <CreditCard size={18} className="text-[#ddf070]" />
+                  <CreditCard size={18} className="text-blue-300" />
                   <span>Finance Module</span>
                 </div>
                 {isFinanceOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
               </button>
 
               {isFinanceOpen && (
-                <div className="ml-4 mt-1 space-y-1 border-l border-emerald-800/50 pl-3">
+                <div className="ml-4 mt-1 space-y-1 border-l border-blue-800/50 pl-3">
                   {visibleFinanceSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
                     const href = `${basePath}${suffix}`;
                     const isCurrent = pathname === href;
@@ -239,8 +250,8 @@ export function TenantNav({
                         aria-current={isCurrent ? "page" : undefined}
                         className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
                           isCurrent
-                            ? "bg-[#ddf070]/20 text-[#ddf070] font-bold cursor-default"
-                            : "text-emerald-200/80 hover:bg-emerald-50/10 hover:text-white"
+                            ? "bg-[#071D75] text-white font-bold cursor-default shadow-xs"
+                            : "text-blue-200/80 hover:bg-white/10 hover:text-white"
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -248,7 +259,7 @@ export function TenantNav({
                           <span>{label}</span>
                         </div>
                         {badge && (
-                          <span className="rounded bg-emerald-950/60 px-1.5 py-0.5 text-[10px] font-mono text-emerald-300 border border-emerald-800/40">
+                          <span className="rounded bg-[#071D75]/60 px-1.5 py-0.5 text-[10px] font-mono text-blue-200 border border-blue-500/30">
                             {badge}
                           </span>
                         )}
@@ -262,7 +273,7 @@ export function TenantNav({
         </nav>
       </div>
 
-      <div className="mt-auto pt-6 border-t border-emerald-800/40 space-y-1">
+      <div className="mt-auto pt-6 border-t border-blue-900/60 space-y-1">
         {bottomNavItems.map(({ label, icon: Icon, suffix }) => {
           const href = `${basePath}${suffix}`;
           const isCurrent = pathname === href;
@@ -276,8 +287,8 @@ export function TenantNav({
               aria-current={isCurrent ? "page" : undefined}
               className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
                 isCurrent
-                  ? "bg-emerald-50/15 text-white cursor-default"
-                  : "text-emerald-100 hover:bg-emerald-50/10"
+                  ? "bg-[#071D75] text-white shadow-sm font-semibold cursor-default"
+                  : "text-blue-100/90 hover:bg-white/10 hover:text-white"
               }`}
             >
               <Icon size={18} />
@@ -290,7 +301,7 @@ export function TenantNav({
           onClick={async () => {
             await logout();
           }}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-emerald-100 transition hover:bg-red-500/20 hover:text-red-300"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-blue-200 transition hover:bg-red-500/20 hover:text-red-300"
         >
           <LogOut size={18} />
           Logout
@@ -299,7 +310,7 @@ export function TenantNav({
         <Link
           href={`/call/${tenantId}`}
           target="_blank"
-          className="mt-4 flex items-center justify-between rounded-md bg-[#ddf070] px-3 py-3 text-sm font-semibold text-[#173a2d] transition hover:bg-[#cbe05d]"
+          className="mt-4 flex items-center justify-between rounded-md bg-[#071D75] px-3 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[#0a299e]"
         >
           Open call page <ExternalLink size={16} />
         </Link>

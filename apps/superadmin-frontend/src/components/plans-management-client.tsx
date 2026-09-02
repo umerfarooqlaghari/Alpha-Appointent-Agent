@@ -88,32 +88,32 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
     <>
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm font-semibold text-teal-700">PRICING & TIERS</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Subscription Plans</h1>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">PRICING & TIERS</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#080C42]">Subscription Plans</h1>
           <p className="mt-2 text-sm text-slate-500">
             Create, edit prices, set calling minute caps, and manage tenant subscription packages.
           </p>
         </div>
         <details className="relative">
-          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md bg-[#0f766e] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 transition">
+          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#080C42] transition">
             <Plus size={17} /> Create New Plan
           </summary>
-          <div className="absolute right-0 z-10 mt-2 w-96 rounded-xl border border-slate-200 bg-white p-5 shadow-2xl">
+          <div className="absolute right-0 z-10 mt-2 w-96 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
             <form onSubmit={handleCreatePlan} className="space-y-3">
-              <p className="font-semibold text-slate-900 flex items-center gap-1.5 text-sm">
-                <Sparkles size={16} className="text-teal-700" /> New Subscription Package
+              <p className="font-bold text-[#080C42] flex items-center gap-1.5 text-sm">
+                <Sparkles size={16} className="text-[#071D75]" /> New Subscription Package
               </p>
-              <input required name="planName" placeholder="Plan Name (e.g. Starter, Enterprise)" className="w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none" />
+              <input required name="planName" placeholder="Plan Name (e.g. Starter, Enterprise)" className="w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
               <div className="flex gap-2">
-                <input required name="monthlyMinutesLimit" type="number" placeholder="Minutes Limit (e.g. 1000)" className="w-1/2 rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none" />
-                <input required name="price" type="number" step="0.01" placeholder="Price ($)" className="w-1/2 rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none" />
+                <input required name="monthlyMinutesLimit" type="number" placeholder="Minutes Limit (e.g. 1000)" className="w-1/2 rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
+                <input required name="price" type="number" step="0.01" placeholder="Price ($)" className="w-1/2 rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
               </div>
-              <textarea name="description" placeholder="Short plan description..." rows={2} className="w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none" />
-              <select name="isActive" className="w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none">
+              <textarea name="description" placeholder="Short plan description..." rows={2} className="w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none" />
+              <select name="isActive" className="w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none">
                 <option value="true">Active (Visible to Tenants)</option>
                 <option value="false">Disabled / Hidden</option>
               </select>
-              <button disabled={isPending} className="w-full rounded-md bg-slate-900 p-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition disabled:opacity-60">
+              <button disabled={isPending} className="w-full rounded-lg bg-[#080C42] p-2.5 text-sm font-semibold text-white hover:bg-[#071D75] transition disabled:opacity-60 shadow-md">
                 {isPending ? "Creating..." : "Save Plan"}
               </button>
             </form>
@@ -136,11 +136,11 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
           <tbody>
             {plans.map((plan) => (
               <tr key={plan.id} className="border-t border-slate-100 align-middle hover:bg-slate-50/50 transition">
-                <td className="px-5 py-4 font-semibold text-slate-900">{plan.planName}</td>
+                <td className="px-5 py-4 font-bold text-[#080C42]">{plan.planName}</td>
                 <td className="px-5 py-4 font-mono text-xs text-slate-700">
                   {plan.monthlyMinutesLimit.toLocaleString()} mins
                 </td>
-                <td className="px-5 py-4 font-bold text-teal-800">
+                <td className="px-5 py-4 font-bold text-[#071D75]">
                   ${Number(plan.price).toFixed(2)} <span className="text-xs font-normal text-slate-500">/mo</span>
                 </td>
                 <td className="px-5 py-4 text-xs text-slate-500 max-w-xs truncate">
@@ -215,7 +215,7 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                   defaultValue={editingPlan.planName}
                   disabled={isPending}
                   required
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 />
               </label>
 
@@ -228,7 +228,7 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                     defaultValue={editingPlan.monthlyMinutesLimit}
                     disabled={isPending}
                     required
-                    className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                    className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                   />
                 </label>
 
@@ -241,7 +241,7 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                     defaultValue={editingPlan.price}
                     disabled={isPending}
                     required
-                    className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                    className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                   />
                 </label>
               </div>
@@ -253,7 +253,7 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                   defaultValue={editingPlan.description}
                   disabled={isPending}
                   rows={2}
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 />
               </label>
 
@@ -263,7 +263,7 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                   name="isActive"
                   defaultValue={String(editingPlan.isActive)}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 >
                   <option value="true">Active (Visible)</option>
                   <option value="false">Disabled</option>
@@ -275,14 +275,14 @@ export function PlansManagementClient({ initialPlans }: { initialPlans: PlanResp
                   type="button"
                   onClick={() => setEditingPlan(null)}
                   disabled={isPending}
-                  className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="w-1/2 rounded-lg border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-1/2 flex items-center justify-center gap-2 rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 shadow-sm"
+                  className="w-1/2 flex items-center justify-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 shadow-md"
                 >
                   {isPending ? (
                     <>

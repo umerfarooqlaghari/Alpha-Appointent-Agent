@@ -65,6 +65,7 @@ export function QuotesClient({
   const [customerEmail, setCustomerEmail] = useState("");
   const [taxRate, setTaxRate] = useState<number>(10);
   const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [notes, setNotes] = useState<string>("");
   const [items, setItems] = useState<QuoteItem[]>([
     { itemName: "Initial Service Consultation", quantity: 1, unitPrice: 150 },
   ]);
@@ -198,12 +199,12 @@ export function QuotesClient({
       {/* Header Banner */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">PROPOSALS & ESTIMATES</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Quotes & Estimates</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">PROPOSALS & ESTIMATES</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-[#080C42]">Quotes & Estimates</h2>
         </div>
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#080C42]"
         >
           <Plus size={16} /> Create Dynamic Estimate
         </button>
@@ -251,10 +252,10 @@ export function QuotesClient({
                       <button
                         onClick={() => handleFetchShareLink(quote.id)}
                         disabled={fetchingShareId === quote.id}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 shadow-xs hover:bg-stone-50 disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs hover:bg-slate-50 disabled:opacity-50"
                       >
                         {fetchingShareId === quote.id ? (
-                          <Loader2 size={13} className="animate-spin text-teal-600" />
+                          <Loader2 size={13} className="animate-spin text-[#071D75]" />
                         ) : (
                           <Share2 size={13} />
                         )}
@@ -262,7 +263,7 @@ export function QuotesClient({
                       </button>
                       <button
                         onClick={() => setSelectedQuote(quote)}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-stone-800"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition"
                       >
                         <FileText size={13} /> View & Sign
                       </button>
@@ -278,12 +279,12 @@ export function QuotesClient({
       {/* Create Quote Modal */}
       {isCreateOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-5">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold text-stone-900 flex items-center gap-2">
-                <FileText className="text-teal-700" size={18} /> Dynamic Estimate Generator
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-bold text-[#080C42] flex items-center gap-2">
+                <FileText className="text-[#071D75]" size={18} /> Dynamic Estimate Generator
               </h3>
-              <button onClick={() => setIsCreateOpen(false)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={18} />
               </button>
             </div>
@@ -291,14 +292,14 @@ export function QuotesClient({
             <form onSubmit={handleCreateQuote} className="space-y-5">
               {/* Optional Lead Selector */}
               {leads.length > 0 && (
-                <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-3 space-y-1.5">
-                  <label className="block text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <UserCheck size={14} className="text-teal-700" /> Select Customer from Existing Leads (Optional)
+                <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-1.5">
+                  <label className="block text-xs font-bold text-[#080C42] uppercase tracking-wider flex items-center gap-1.5">
+                    <UserCheck size={14} className="text-[#071D75]" /> Select Customer from Existing Leads (Optional)
                   </label>
                   <select
                     value={selectedLeadId}
                     onChange={(e) => handleSelectLead(e.target.value)}
-                    className="w-full rounded-md border border-teal-300 bg-white px-3 py-1.5 text-xs text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   >
                     <option value="">-- Manual Entry (New Customer) --</option>
                     {leads.map((lead) => (
@@ -312,35 +313,35 @@ export function QuotesClient({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Customer Name</label>
+                  <label className="block text-xs font-semibold text-slate-700">Customer Name</label>
                   <input
                     type="text"
                     required
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="e.g. Acme Corp"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Phone (SMS/WhatsApp)</label>
+                  <label className="block text-xs font-semibold text-slate-700">Phone (SMS/WhatsApp)</label>
                   <input
                     type="text"
                     required
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     placeholder="+1 (555) 000-0000"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Email Address</label>
+                  <label className="block text-xs font-semibold text-slate-700">Email Address</label>
                   <input
                     type="email"
                     value={customerEmail}
                     onChange={(e) => setCustomerEmail(e.target.value)}
                     placeholder="client@acme.com"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
               </div>
@@ -348,11 +349,11 @@ export function QuotesClient({
               {/* Itemized Line Items */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500">Itemized Line Items</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Itemized Line Items</h4>
                   <button
                     type="button"
                     onClick={handleAddItemRow}
-                    className="flex items-center gap-1 text-xs font-semibold text-teal-700 hover:underline"
+                    className="flex items-center gap-1 text-xs font-bold text-[#071D75] hover:underline"
                   >
                     <Plus size={14} /> Add Item Row
                   </button>
@@ -360,47 +361,44 @@ export function QuotesClient({
 
                 <div className="space-y-2">
                   {items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-50 p-2.5">
+                    <div key={idx} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2.5">
                       <input
                         type="text"
-                        required
-                        placeholder="Item / Service description"
+                        placeholder="Item name / Service"
                         value={item.itemName}
                         onChange={(e) => handleItemChange(idx, "itemName", e.target.value)}
-                        className="flex-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:outline-none"
+                        required
+                        className="flex-3 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:outline-none"
                       />
-                      <div className="w-16">
-                        <input
-                          type="number"
-                          min="1"
-                          required
-                          placeholder="Qty"
-                          value={item.quantity}
-                          onChange={(e) => handleItemChange(idx, "quantity", parseInt(e.target.value) || 1)}
-                          className="w-full rounded border border-stone-300 bg-white px-2 py-1.5 text-sm text-stone-900 focus:outline-none text-center"
-                        />
-                      </div>
-                      <div className="w-24">
-                        <input
-                          type="number"
-                          step="0.01"
-                          required
-                          placeholder="Price"
-                          value={item.unitPrice}
-                          onChange={(e) => handleItemChange(idx, "unitPrice", parseFloat(e.target.value) || 0)}
-                          className="w-full rounded border border-stone-300 bg-white px-2 py-1.5 text-sm text-stone-900 focus:outline-none text-right font-mono"
-                        />
-                      </div>
-                      <div className="w-20 text-right font-mono text-sm font-semibold text-stone-900">
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Qty"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(idx, "quantity", Number(e.target.value))}
+                        required
+                        className="w-16 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:outline-none"
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Unit Price"
+                        value={item.unitPrice}
+                        onChange={(e) => handleItemChange(idx, "unitPrice", Number(e.target.value))}
+                        required
+                        className="w-24 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 font-mono focus:border-[#071D75] focus:outline-none"
+                      />
+                      <span className="w-20 text-right font-mono text-xs font-bold text-slate-700">
                         ${(item.quantity * item.unitPrice).toFixed(2)}
-                      </div>
+                      </span>
                       {items.length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveItemRow(idx)}
-                          className="text-rose-500 hover:text-rose-700"
+                          className="p-1 text-rose-500 hover:text-rose-700"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>
@@ -408,63 +406,78 @@ export function QuotesClient({
                 </div>
               </div>
 
-              {/* Calculations */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-stone-200">
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700">Tax Rate (%)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={taxRate}
-                      onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                      className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:outline-none font-mono"
-                    />
+              {/* Tax, Discount, Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <div className="w-1/2">
+                      <label className="block text-xs font-semibold text-slate-700">Tax Rate (%)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={taxRate}
+                        onChange={(e) => setTaxRate(Number(e.target.value))}
+                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:outline-none"
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label className="block text-xs font-semibold text-slate-700">Discount ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={discountAmount}
+                        onChange={(e) => setDiscountAmount(Number(e.target.value))}
+                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:outline-none"
+                      />
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-700">Discount ($)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={discountAmount}
-                      onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
-                      className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-900 focus:outline-none font-mono"
+                    <label className="block text-xs font-semibold text-slate-700">Terms & Client Notes</label>
+                    <textarea
+                      rows={2}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="e.g. Valid for 30 days. 50% deposit required on start..."
+                      className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-stone-200 bg-stone-50 p-3.5 space-y-1.5 text-xs">
-                  <div className="flex justify-between text-stone-600">
+                {/* Calculation Summary */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs">
+                  <div className="flex justify-between text-slate-600">
                     <span>Subtotal:</span>
                     <span className="font-mono">${calculatedSubtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-stone-600">
+                  <div className="flex justify-between text-slate-600">
                     <span>Tax ({taxRate}%):</span>
                     <span className="font-mono">${calculatedTax.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-stone-600">
+                  <div className="flex justify-between text-slate-600">
                     <span>Discount:</span>
                     <span className="font-mono">-${discountAmount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between border-t border-stone-200 pt-1.5 text-sm font-bold text-stone-900">
+                  <div className="flex justify-between border-t border-slate-200 pt-1.5 text-sm font-bold text-slate-900">
                     <span>Total Estimate:</span>
-                    <span className="font-mono text-teal-800">${calculatedTotal.toFixed(2)}</span>
+                    <span className="font-mono text-[#071D75]">${calculatedTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-stone-200">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="rounded-md border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingQuote}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
                 >
                   {isSubmittingQuote && <Loader2 size={16} className="animate-spin" />}
                   Generate Estimate
@@ -478,17 +491,17 @@ export function QuotesClient({
       {/* Share Links Modal */}
       {shareData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Share2 size={18} className="text-teal-700" /> Share Approval Link
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[#080C42]">
+                <Share2 size={18} className="text-[#071D75]" /> Share Approval Link
               </h3>
-              <button onClick={() => setShareData(null)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setShareData(null)} className="text-slate-400 hover:text-slate-600">
                 <X size={18} />
               </button>
             </div>
 
-            <div className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-xs font-mono text-stone-700 whitespace-pre-wrap">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-mono text-slate-700 whitespace-pre-wrap">
               {shareData.summaryText}
             </div>
 
@@ -497,13 +510,13 @@ export function QuotesClient({
                 href={shareData.whatsappUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-center gap-2 w-full rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 shadow-xs"
+                className="flex items-center justify-center gap-2 w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 shadow-xs"
               >
                 <MessageCircle size={16} /> Send via WhatsApp
               </a>
               <a
                 href={shareData.smsUrl}
-                className="flex items-center justify-center gap-2 w-full rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+                className="flex items-center justify-center gap-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 <Send size={16} /> Send via SMS
               </a>
@@ -515,30 +528,30 @@ export function QuotesClient({
       {/* Detail & Signature Modal */}
       {selectedQuote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-xl rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-5">
-            <div className="flex items-start justify-between border-b border-stone-200 pb-3">
+          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-5">
+            <div className="flex items-start justify-between border-b border-slate-200 pb-3">
               <div>
-                <h3 className="text-lg font-bold text-stone-900">Estimate #{selectedQuote.id.substring(0, 8)}</h3>
-                <p className="text-xs text-stone-500">{selectedQuote.customerName} • {selectedQuote.customerPhone}</p>
+                <h3 className="text-lg font-bold text-[#080C42]">Estimate #{selectedQuote.id.substring(0, 8)}</h3>
+                <p className="text-xs text-slate-500">{selectedQuote.customerName} • {selectedQuote.customerPhone}</p>
               </div>
-              <button onClick={() => setSelectedQuote(null)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setSelectedQuote(null)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />
               </button>
             </div>
 
             {/* Line items summary */}
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wider">Line Items Summary</h4>
-              <div className="divide-y divide-stone-100 rounded-lg border border-stone-200 bg-stone-50 p-3">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Line Items Summary</h4>
+              <div className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 {selectedQuote.items?.map((item, idx) => (
-                  <div key={idx} className="flex justify-between py-1.5 text-sm text-stone-800">
+                  <div key={idx} className="flex justify-between py-1.5 text-sm text-slate-800">
                     <span>{item.itemName} (x{item.quantity})</span>
                     <span className="font-mono">${(item.totalPrice || item.quantity * item.unitPrice).toFixed(2)}</span>
                   </div>
                 ))}
-                <div className="pt-2 flex justify-between font-bold text-stone-900 text-sm">
+                <div className="pt-2 flex justify-between font-bold text-slate-900 text-sm">
                   <span>Total Amount:</span>
-                  <span className="font-mono text-teal-800">${selectedQuote.totalAmount.toFixed(2)}</span>
+                  <span className="font-mono text-[#071D75]">${selectedQuote.totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -580,14 +593,14 @@ export function QuotesClient({
             {/* Convert to Order */}
             <div className="flex justify-end gap-2 pt-2 border-t border-stone-200">
               {selectedQuote.status === "converted" ? (
-                <span className="text-sm font-semibold text-emerald-700 flex items-center gap-1.5">
+                <span className="text-sm font-semibold text-[#071D75] flex items-center gap-1.5">
                   <CheckCircle size={16} /> Active Order Converted
                 </span>
               ) : (
                 <button
                   onClick={() => handleConvertToOrder(selectedQuote.id)}
                   disabled={isConvertingQuote}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] shadow-xs disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2 text-sm font-bold text-white hover:bg-[#080C42] shadow-sm transition-all disabled:opacity-50"
                 >
                   {isConvertingQuote ? (
                     <Loader2 size={16} className="animate-spin" />

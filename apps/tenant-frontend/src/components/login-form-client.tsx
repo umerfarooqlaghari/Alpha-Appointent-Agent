@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition, useState } from "react";
+import Image from "next/image";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { login } from "@/app/login/actions";
 
@@ -38,10 +39,18 @@ export function TenantLoginFormClient({ initialError }: { initialError?: string 
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 shadow-2xl border border-emerald-950/10">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-700">RELAY DESK</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-stone-900">Tenant sign in</h1>
+    <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-2xl bg-white p-7 shadow-2xl border border-slate-100">
+      <div className="flex flex-col items-center text-center">
+        <div className="relative size-14 overflow-hidden rounded-2xl border border-slate-200 shadow-md mb-3">
+          <Image
+            src="/logo.jpg"
+            alt="Logo"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#071D75]">RELAY DESK</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#080C42]">Tenant sign in</h1>
       </div>
 
       {error && (
@@ -50,7 +59,7 @@ export function TenantLoginFormClient({ initialError }: { initialError?: string 
         </div>
       )}
 
-      <label className="block text-xs font-medium text-stone-600">
+      <label className="block text-xs font-medium text-slate-700">
         Email Address
         <input
           required
@@ -58,11 +67,11 @@ export function TenantLoginFormClient({ initialError }: { initialError?: string 
           type="email"
           placeholder="admin@organization.com"
           disabled={isPending}
-          className="mt-1 w-full rounded-md border border-stone-200 p-2.5 text-sm focus:border-teal-600 focus:outline-none disabled:opacity-60"
+          className="mt-1 w-full rounded-lg border border-slate-200 p-2.5 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
         />
       </label>
 
-      <label className="block text-xs font-medium text-stone-600">
+      <label className="block text-xs font-medium text-slate-700">
         Password
         <div className="relative mt-1">
           <input
@@ -71,12 +80,12 @@ export function TenantLoginFormClient({ initialError }: { initialError?: string 
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             disabled={isPending}
-            className="w-full rounded-md border border-stone-200 p-2.5 pr-10 text-sm focus:border-teal-600 focus:outline-none disabled:opacity-60"
+            className="w-full rounded-lg border border-slate-200 p-2.5 pr-10 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -86,7 +95,7 @@ export function TenantLoginFormClient({ initialError }: { initialError?: string 
       <button
         type="submit"
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 rounded-md bg-[#12382e] py-3 text-sm font-semibold text-white hover:bg-teal-900 transition disabled:opacity-60 shadow-sm"
+        className="w-full flex items-center justify-center gap-2 rounded-lg bg-[#080C42] py-3 text-sm font-semibold text-white hover:bg-[#071D75] transition-all disabled:opacity-60 shadow-md hover:shadow-lg"
       >
         {isPending ? (
           <>

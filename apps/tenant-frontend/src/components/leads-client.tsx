@@ -267,13 +267,13 @@ export function LeadsClient({
       {/* Top Banner & Header Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">SALES & PIPELINE</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Leads & Pipeline</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">SALES & PIPELINE</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-[#080C42]">Leads & Pipeline</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setIsAddLeadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#080C42]"
           >
             <Plus size={16} /> Add Lead
           </button>
@@ -308,15 +308,15 @@ export function LeadsClient({
                     <div
                       key={lead.id}
                       onClick={() => handleOpenLeadDrawer(lead)}
-                      className="group cursor-pointer rounded-lg border border-stone-200 bg-white p-3.5 shadow-xs transition-all hover:border-teal-500 hover:shadow-md space-y-2"
+                      className="group cursor-pointer rounded-xl border border-slate-200 bg-white p-3.5 shadow-xs transition-all hover:border-[#071D75] hover:shadow-md space-y-2"
                     >
                       <div className="space-y-0.5">
-                        <h3 className="font-semibold text-stone-900 text-sm group-hover:text-teal-700 transition-colors truncate" title={lead.name}>
+                        <h3 className="font-bold text-[#080C42] text-sm group-hover:text-[#071D75] transition-colors truncate" title={lead.name}>
                           {lead.name}
                         </h3>
-                        <p className="text-xs text-stone-600 font-mono">{lead.phone}</p>
+                        <p className="text-xs text-slate-600 font-mono">{lead.phone}</p>
                         {lead.email && (
-                          <p className="text-xs text-stone-400 truncate" title={lead.email}>
+                          <p className="text-xs text-slate-400 truncate" title={lead.email}>
                             {lead.email}
                           </p>
                         )}
@@ -325,22 +325,22 @@ export function LeadsClient({
                       {/* Call Log Identifier Reference Badge */}
                       {lead.callLogIdentifier && (
                         <div className="pt-0.5">
-                          <span className="inline-flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-[11px] font-mono font-medium text-teal-800 border border-teal-200 truncate max-w-full" title={lead.callLogIdentifier}>
-                            <Tag size={10} className="text-teal-600 shrink-0" />
+                          <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-mono font-semibold text-[#071D75] border border-blue-200 truncate max-w-full" title={lead.callLogIdentifier}>
+                            <Tag size={10} className="text-[#071D75] shrink-0" />
                             <span className="truncate">Ref: {lead.callLogIdentifier}</span>
                           </span>
                         </div>
                       )}
 
                       {lead.summary && (
-                        <p className="line-clamp-2 text-xs text-stone-600 bg-stone-50 p-2 rounded border border-stone-100 leading-relaxed">
+                        <p className="line-clamp-2 text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">
                           {lead.summary}
                         </p>
                       )}
 
-                      <div className="flex items-center justify-between pt-2 border-t border-stone-100 text-[11px] text-stone-500">
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-500">
                         <span className="flex items-center gap-1 font-medium truncate max-w-[120px]">
-                          {lead.source === "voice_call" ? <PhoneCall size={12} className="text-teal-600 shrink-0" /> : <Globe size={12} className="shrink-0" />}
+                          {lead.source === "voice_call" ? <PhoneCall size={12} className="text-[#071D75] shrink-0" /> : <Globe size={12} className="shrink-0" />}
                           <span className="truncate">{lead.source === "voice_call" ? "Voice AI" : lead.source}</span>
                         </span>
                         <span className="flex items-center gap-1 truncate max-w-[120px]" title={lead.assignedTo || "Sales Rep"}>
@@ -371,14 +371,14 @@ export function LeadsClient({
             <form onSubmit={handleCreateLead} className="space-y-4">
               {/* Optional Call Reference Selector */}
               {callLogs.length > 0 && (
-                <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-3 space-y-1.5">
-                  <label className="block text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <PhoneCall size={13} className="text-teal-700" /> Reference Previous AI Call (Optional)
+                <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3 space-y-1.5">
+                  <label className="block text-xs font-bold text-[#080C42] uppercase tracking-wider flex items-center gap-1.5">
+                    <PhoneCall size={13} className="text-[#071D75]" /> Reference Previous AI Call (Optional)
                   </label>
                   <select
                     value={selectedCallLogId}
                     onChange={(e) => handleSelectCallLog(e.target.value)}
-                    className="w-full rounded-md border border-teal-300 bg-white px-3 py-1.5 text-xs text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="w-full rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   >
                     <option value="">-- None (Manual Lead Entry) --</option>
                     {callLogs.map((log) => (
@@ -391,86 +391,86 @@ export function LeadsClient({
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-stone-700">Customer Name</label>
+                <label className="block text-xs font-semibold text-slate-700">Lead / Contact Name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Phone Number</label>
+                  <label className="block text-xs font-semibold text-slate-700">Phone Number</label>
                   <input
                     type="text"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 (555) 000-0000"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Email (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-700">Email (Optional)</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="john@example.com"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Call Log Identifier / Reference</label>
+                  <label className="block text-xs font-semibold text-slate-700">Call Log Identifier / Reference</label>
                   <input
                     type="text"
                     value={callLogIdentifier}
                     onChange={(e) => setCallLogIdentifier(e.target.value)}
                     placeholder="e.g. Lead-101 or Ref ID"
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 font-mono focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 font-mono focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700">Assign To Sales Rep</label>
+                  <label className="block text-xs font-semibold text-slate-700">Assign To Sales Rep</label>
                   <input
                     type="text"
                     value={assignedTo}
                     onChange={(e) => setAssignedTo(e.target.value)}
-                    className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-stone-700">Inquiry Notes & Summary</label>
+                <label className="block text-xs font-semibold text-slate-700">Inquiry Notes & Summary</label>
                 <textarea
                   rows={3}
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
                   placeholder="Notes, transcript summary, or inquiry details..."
-                  className="mt-1 w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                  className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-3 border-t border-stone-200">
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsAddLeadOpen(false)}
-                  className="rounded-md border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50"
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmittingLead}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
                 >
                   {isSubmittingLead && <Loader2 size={16} className="animate-spin" />}
                   Save Lead
@@ -484,17 +484,17 @@ export function LeadsClient({
       {/* Lead Detail & Edit Drawer Modal */}
       {selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-xl rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-start justify-between border-b border-stone-200 pb-3">
+          <div className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between border-b border-slate-200 pb-3">
               <div>
-                <h3 className="text-xl font-bold text-stone-900">{selectedLead.name}</h3>
-                <p className="text-xs text-stone-500 mt-1 font-mono">
+                <h3 className="text-xl font-bold text-[#080C42]">{selectedLead.name}</h3>
+                <p className="text-xs text-slate-500 mt-1 font-mono">
                   {selectedLead.phone} {selectedLead.email && `• ${selectedLead.email}`}
                 </p>
                 {selectedLead.callLogIdentifier && (
                   <p className="mt-1.5">
-                    <span className="inline-flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-xs font-mono font-semibold text-teal-800 border border-teal-200">
-                      <Tag size={11} className="text-teal-600" />
+                    <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-mono font-semibold text-[#071D75] border border-blue-200">
+                      <Tag size={11} className="text-[#071D75]" />
                       Attached Call Ref: {selectedLead.callLogIdentifier}
                     </span>
                   </p>
@@ -595,7 +595,7 @@ export function LeadsClient({
                   <button
                     type="submit"
                     disabled={isUpdatingLead}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-[#ddf070] px-4 py-1.5 text-xs font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#071D75] hover:bg-[#080C42] px-4 py-1.5 text-xs font-bold text-white transition-all disabled:opacity-50 shadow-xs"
                   >
                     {isUpdatingLead && <Loader2 size={13} className="animate-spin" />}
                     Save Changes
@@ -606,16 +606,16 @@ export function LeadsClient({
               <>
                 {/* Stage Progress & Actions */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-stone-500">Move Pipeline Stage</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Move Pipeline Stage</label>
                   <div className="flex flex-wrap gap-2">
                     {STAGES.map((s) => (
                       <button
                         key={s.id}
                         disabled={updatingStageId !== null}
                         onClick={() => handleUpdateStage(selectedLead.id, s.id)}
-                        className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition ${selectedLead.stage === s.id
-                            ? "bg-[#ddf070] text-[#12382e] border-[#cde05e]"
-                            : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${selectedLead.stage === s.id
+                            ? "bg-[#071D75] text-white border-[#071D75] shadow-xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                           }`}
                       >
                         {updatingStageId === s.id && <Loader2 size={12} className="animate-spin" />}
@@ -627,11 +627,11 @@ export function LeadsClient({
 
                 {/* Summary */}
                 {selectedLead.summary && (
-                  <div className="rounded-lg border border-stone-200 bg-stone-50 p-3.5 space-y-1">
-                    <h4 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
-                      <MessageSquare size={14} /> Lead Notes & Summary
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-1">
+                    <h4 className="text-xs font-bold text-[#080C42] uppercase tracking-wider flex items-center gap-1.5">
+                      <MessageSquare size={14} className="text-[#071D75]" /> Lead Notes & Summary
                     </h4>
-                    <p className="text-sm text-stone-700 leading-relaxed">{selectedLead.summary}</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{selectedLead.summary}</p>
                   </div>
                 )}
               </>
@@ -639,8 +639,8 @@ export function LeadsClient({
 
             {/* Task Assignment */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Calendar size={14} /> Assigned Tasks & Follow-ups
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Calendar size={14} className="text-[#071D75]" /> Assigned Tasks & Follow-ups
               </h4>
 
               <div className="flex gap-2">
@@ -649,12 +649,12 @@ export function LeadsClient({
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Add a new task..."
-                  className="flex-1 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-teal-600 focus:outline-none"
+                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
                 <button
                   onClick={() => handleAddTask(selectedLead.id)}
                   disabled={isAddingTask}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-4 py-2 text-sm font-semibold text-white transition-all disabled:opacity-50"
                 >
                   {isAddingTask && <Loader2 size={14} className="animate-spin" />}
                   Add Task
@@ -663,23 +663,23 @@ export function LeadsClient({
 
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                 {(!selectedLead.tasks || selectedLead.tasks.length === 0) ? (
-                  <p className="text-xs text-stone-400 italic">No tasks assigned yet.</p>
+                  <p className="text-xs text-slate-400 italic">No tasks assigned yet.</p>
                 ) : (
                   selectedLead.tasks.map((task) => (
                     <div
                       key={task.id}
                       onClick={() => handleToggleTask(selectedLead.id, task.id, task.isCompleted)}
-                      className="flex items-center justify-between rounded-lg border border-stone-200 bg-stone-50 p-2.5 cursor-pointer hover:bg-stone-100"
+                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2.5 cursor-pointer hover:bg-slate-100 transition"
                     >
                       <div className="flex items-center gap-2.5">
                         {togglingTaskId === task.id ? (
-                          <Loader2 size={16} className="animate-spin text-teal-600 shrink-0" />
+                          <Loader2 size={16} className="animate-spin text-[#071D75] shrink-0" />
                         ) : task.isCompleted ? (
                           <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                         ) : (
-                          <Circle size={16} className="text-stone-300 shrink-0" />
+                          <Circle size={16} className="text-slate-300 shrink-0" />
                         )}
-                        <span className={`text-sm font-medium ${task.isCompleted ? "line-through text-stone-400" : "text-stone-800"}`}>
+                        <span className={`text-sm font-medium ${task.isCompleted ? "line-through text-slate-400" : "text-slate-800"}`}>
                           {task.title}
                         </span>
                       </div>

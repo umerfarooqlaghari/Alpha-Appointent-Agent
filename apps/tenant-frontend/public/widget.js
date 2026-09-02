@@ -28,10 +28,10 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background-color: #12382e;
-      color: #ddf070;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(221, 240, 112, 0.2);
+      background-color: #080C42;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(8, 12, 66, 0.35);
+      border: 2px solid #071D75;
       cursor: pointer;
       display: flex;
       align-items: center;

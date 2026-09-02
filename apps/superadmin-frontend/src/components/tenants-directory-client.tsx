@@ -144,17 +144,17 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
     <>
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm font-semibold text-teal-700">PLATFORM DIRECTORY</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Tenant management</h1>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">PLATFORM DIRECTORY</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#080C42]">Tenant management</h1>
           <p className="mt-2 text-sm text-slate-500">
             Onboard and manage organizations, call usage quotas, and module feature allocations.
           </p>
         </div>
         <details className="relative">
-          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md bg-[#0f766e] px-4 py-2.5 text-sm font-semibold text-white">
+          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#080C42] transition shadow-sm">
             <Plus size={17} />Add tenant
           </summary>
-          <div className="absolute right-0 z-10 mt-2 w-96 rounded-lg border border-slate-200 bg-white p-5 shadow-xl">
+          <div className="absolute right-0 z-10 mt-2 w-96 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
             <form action={addTenant} className="space-y-3">
               <label className="block text-xs font-medium text-slate-500">
                 Organization Name
@@ -162,7 +162,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="name"
                   placeholder="e.g. Apex Health Clinic"
                   required
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </label>
 
@@ -172,7 +172,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="tenantId"
                   placeholder="e.g. apex-health"
                   required
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </label>
 
@@ -181,7 +181,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                 <select
                   name="industryType"
                   defaultValue="service"
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 >
                   <option value="restaurant">Restaurant (Menu & Food Orders)</option>
                   <option value="service">Service / Appointments (Slots & Bookings)</option>
@@ -198,7 +198,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="adminEmail"
                   type="email"
                   placeholder="admin@organization.com"
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </label>
 
@@ -208,14 +208,14 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="adminPassword"
                   type="password"
                   placeholder="••••••••"
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none"
                 />
               </label>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-800"
+                  className="w-full rounded-lg bg-[#080C42] py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#071D75] transition"
                 >
                   Create Tenant Organization
                 </button>
@@ -274,7 +274,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                             <span>{pct}%</span>
                           </div>
                           <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                            <div className="h-full bg-teal-600 rounded-full" style={{ width: `${pct}%` }}></div>
+                            <div className="h-full bg-[#071D75] rounded-full" style={{ width: `${pct}%` }}></div>
                           </div>
                         </div>
                       )
@@ -298,7 +298,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                         setActivePlanModalTenant(tenant);
                       }}
                       type="button"
-                      className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
                     >
                       <Settings size={13} /> Edit Plan
                     </button>
@@ -308,7 +308,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                         setActiveFeaturesModalTenant(tenant);
                       }}
                       type="button"
-                      className="inline-flex items-center gap-1.5 rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1.5 text-xs font-semibold text-teal-800 hover:bg-teal-100 transition shadow-2xs"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 border border-blue-200 px-2.5 py-1.5 text-xs font-semibold text-[#071D75] hover:bg-blue-100 transition shadow-2xs"
                     >
                       <SlidersHorizontal size={13} /> Feature Allocations
                     </button>
@@ -359,7 +359,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="planName"
                   defaultValue={activePlanModalTenant.subscription?.planName ?? "Trial"}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 >
                   <option value="Trial">Trial (30 mins)</option>
                   <option value="Starter">Starter (500 mins)</option>
@@ -376,7 +376,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   type="number"
                   defaultValue={activePlanModalTenant.subscription?.monthlyMinutesLimit ?? 30}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60 font-mono"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60 font-mono"
                 />
               </label>
 
@@ -386,7 +386,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="isActive"
                   defaultValue={String(activePlanModalTenant.subscription?.isActive ?? true)}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 >
                   <option value="true">Active</option>
                   <option value="false">Suspended</option>
@@ -399,7 +399,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="resetMinutes"
                   value="true"
                   disabled={isPending}
-                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                  className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                 />
                 Reset minute counter to 0
               </label>
@@ -410,7 +410,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="resetPeriod"
                   value="true"
                   disabled={isPending}
-                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                  className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                 />
                 Reset trial days / billing period (+14 / +30 days)
               </label>
@@ -421,7 +421,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="industryType"
                   defaultValue={activePlanModalTenant.industryType || "service"}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 >
                   <option value="restaurant">Restaurant (Menu & Food Orders)</option>
                   <option value="service">Service / Appointments (Slots & Bookings)</option>
@@ -438,7 +438,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   name="currency"
                   defaultValue={activePlanModalTenant.currency || "USD"}
                   disabled={isPending}
-                  className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+                  className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
                 >
                   <option value="USD">USD ($ - US Dollar)</option>
                   <option value="EUR">EUR (€ - Euro)</option>
@@ -457,14 +457,14 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   type="button"
                   onClick={() => setActivePlanModalTenant(null)}
                   disabled={isPending}
-                  className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="w-1/2 rounded-lg border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-1/2 flex items-center justify-center gap-2 rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 shadow-sm"
+                  className="w-1/2 flex items-center justify-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 shadow-md"
                 >
                   {isPending ? (
                     <>
@@ -487,9 +487,9 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-100 space-y-4">
             <div className="flex justify-between items-center pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <SlidersHorizontal className="text-teal-700" size={20} />
+                <SlidersHorizontal className="text-[#071D75]" size={20} />
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Feature Allocations</h3>
+                  <h3 className="text-lg font-bold text-[#080C42]">Feature Allocations</h3>
                   <p className="text-xs text-slate-500">{activeFeaturesModalTenant.name} ({activeFeaturesModalTenant.tenantId})</p>
                 </div>
               </div>
@@ -515,9 +515,9 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
               </p>
 
               {/* Core Features */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 space-y-2">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <Layers size={13} className="text-slate-700" /> Core Platform Features
+                  <Layers size={13} className="text-[#071D75]" /> Core Platform Features
                 </p>
                 <div className="grid grid-cols-2 gap-2.5">
                   <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
@@ -527,7 +527,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("inventory") && !activeFeaturesModalTenant.disabledTabs?.includes("menu")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     Catalog (Menu / Inventory)
                   </label>
@@ -538,7 +538,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("services")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     Services & Pricing
                   </label>
@@ -549,7 +549,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("orders")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     Orders (POS / Food)
                   </label>
@@ -560,7 +560,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("slots") && !activeFeaturesModalTenant.disabledTabs?.includes("appointments")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     Slots & Appointments
                   </label>
@@ -571,7 +571,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("faqs")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     FAQs Knowledgebase
                   </label>
@@ -582,7 +582,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("call-logs")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     Call Logs & Transcripts
                   </label>
@@ -590,9 +590,9 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
               </div>
 
               {/* Sales Module */}
-              <div className="rounded-lg border border-teal-200 bg-teal-50/40 p-3.5 space-y-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="text-teal-700" /> Sales Module (1.0)
+              <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#080C42] flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-[#071D75]" /> Sales Module (1.0)
                 </p>
                 <div className="grid grid-cols-2 gap-2.5">
                   <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
@@ -602,7 +602,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("leads")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     1.1 Leads & Pipeline
                   </label>
@@ -613,7 +613,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("quotes")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     1.2 Quotes & Proposals
                   </label>
@@ -624,7 +624,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("sales-orders")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     1.3 Unified Orders
                   </label>
@@ -635,7 +635,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("sales-analytics")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     1.4 Sales Analytics
                   </label>
@@ -643,9 +643,9 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
               </div>
 
               {/* Finance Module */}
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-3.5 space-y-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                  <ShieldCheck size={13} className="text-emerald-700" /> Finance Module (2.0)
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-[#080C42] flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-[#071D75]" /> Finance Module (2.0)
                 </p>
                 <div className="grid grid-cols-2 gap-2.5">
                   <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
@@ -655,7 +655,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("invoices")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     2.1 Invoicing & Billing
                   </label>
@@ -666,7 +666,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("expenses")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     2.2 Expense & COGS
                   </label>
@@ -677,7 +677,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       value="true"
                       defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("receivables")}
                       disabled={isPending}
-                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                      className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     2.3 Accounts Receivable
                   </label>
@@ -689,14 +689,14 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   type="button"
                   onClick={() => setActiveFeaturesModalTenant(null)}
                   disabled={isPending}
-                  className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  className="w-1/2 rounded-lg border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-1/2 flex items-center justify-center gap-2 rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 shadow-sm"
+                  className="w-1/2 flex items-center justify-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 shadow-md"
                 >
                   {isPending ? (
                     <>

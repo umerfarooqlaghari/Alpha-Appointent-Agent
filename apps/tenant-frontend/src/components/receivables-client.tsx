@@ -138,13 +138,13 @@ export function ReceivablesClient({
       {/* Header Banner */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">ACCOUNTS RECEIVABLE & DUNNING</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Accounts Receivable Aging</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">ACCOUNTS RECEIVABLE & DUNNING</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-[#080C42]">Accounts Receivable Aging</h2>
         </div>
         <button
           onClick={handleTriggerDunning}
           disabled={isTriggeringDunning}
-          className="inline-flex items-center gap-2 rounded-md bg-stone-900 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-stone-800 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-4 py-2 text-sm font-semibold text-white shadow-sm transition disabled:opacity-50"
         >
           {isTriggeringDunning ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
           Run Automated Dunning Cycle
@@ -153,12 +153,12 @@ export function ReceivablesClient({
 
       {/* Dunning Notification Alert */}
       {dunningResultMessage && (
-        <div className="flex items-center justify-between rounded-xl border border-teal-200 bg-teal-50 p-4 text-xs font-semibold text-teal-900">
+        <div className="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-4 text-xs font-semibold text-[#080C42]">
           <div className="flex items-center gap-2">
-            <Clock size={16} className="text-teal-700 shrink-0" />
+            <Clock size={16} className="text-[#071D75] shrink-0" />
             <span>{dunningResultMessage}</span>
           </div>
-          <button onClick={() => setDunningResultMessage(null)} className="text-teal-700 hover:text-teal-900">
+          <button onClick={() => setDunningResultMessage(null)} className="text-[#071D75] hover:text-[#080C42]">
             <X size={16} />
           </button>
         </div>
@@ -265,16 +265,16 @@ export function ReceivablesClient({
                       <button
                         onClick={() => handleSendPaymentLink(inv.id)}
                         disabled={sendingLinkId === inv.id}
-                        className="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs disabled:opacity-50"
                       >
-                        {sendingLinkId === inv.id ? <Loader2 size={12} className="animate-spin text-teal-600" /> : <Share2 size={12} />}
+                        {sendingLinkId === inv.id ? <Loader2 size={12} className="animate-spin text-[#071D75]" /> : <Share2 size={12} />}
                         Send Reminder
                       </button>
                       {inv.status !== "bad_debt" && (
                         <button
                           onClick={() => handleFlagBadDebt(inv.id)}
                           disabled={flaggingBadDebtId === inv.id}
-                          className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 shadow-xs disabled:opacity-50"
+                          className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-100 shadow-xs disabled:opacity-50"
                         >
                           {flaggingBadDebtId === inv.id ? <Loader2 size={12} className="animate-spin" /> : <Ban size={12} />}
                           Bad Debt
@@ -292,17 +292,17 @@ export function ReceivablesClient({
       {/* Share Reminder Modal */}
       {shareData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Share2 size={18} className="text-teal-700" /> Dispatch Dunning Reminder
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-bold text-[#080C42] flex items-center gap-2">
+                <Share2 size={18} className="text-[#071D75]" /> Dispatch Dunning Reminder
               </h3>
-              <button onClick={() => setShareData(null)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setShareData(null)} className="text-slate-400 hover:text-slate-600">
                 <X size={18} />
               </button>
             </div>
 
-            <div className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-xs font-mono text-stone-700 whitespace-pre-wrap">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-mono text-slate-700 whitespace-pre-wrap">
               {shareData.summaryText}
             </div>
 

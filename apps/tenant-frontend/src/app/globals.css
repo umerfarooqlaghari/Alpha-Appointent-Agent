@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f7f6;
-  --foreground: #15231d;
+  --background: #f8fafc;
+  --foreground: #080c42;
+  --brand-dark: #080c42;
+  --brand-light: #071d75;
 }
 
 @theme inline {
@@ -18,4 +20,4 @@ body {
   font-family: var(--font-geist-sans), sans-serif;
 }
 
-input, select, textarea { outline-color: #0f766e; }
+input, select, textarea { outline-color: #071d75; }

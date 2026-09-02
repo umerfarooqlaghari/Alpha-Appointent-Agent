@@ -51,10 +51,10 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl animate-in zoom-in-95 duration-150">
         <div className="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Manage Quota</h3>
+            <h3 className="text-lg font-bold text-[#080C42]">Manage Quota</h3>
             <p className="text-xs text-slate-500">{tenant.name} ({tenant.tenantId})</p>
           </div>
           <button
@@ -80,7 +80,7 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
               name="planName"
               defaultValue={sub?.planName ?? "Trial"}
               disabled={isPending}
-              className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
             >
               <option value="Trial">Trial (30 mins)</option>
               <option value="Starter">Starter (500 mins)</option>
@@ -95,7 +95,7 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
               type="number"
               defaultValue={sub?.monthlyMinutesLimit ?? 30}
               disabled={isPending}
-              className="mt-1 block w-full rounded-md border border-slate-200 p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+              className="mt-1 block w-full rounded-lg border border-slate-200 p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
             />
           </label>
 
@@ -105,7 +105,7 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
               name="isActive"
               defaultValue={String(sub?.isActive ?? true)}
               disabled={isPending}
-              className="mt-1 block w-full rounded-md border border-slate-200 bg-white p-2 text-sm focus:border-teal-500 focus:outline-none disabled:opacity-60"
+              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white p-2 text-sm focus:border-[#071D75] focus:ring-1 focus:ring-[#071D75] focus:outline-none disabled:opacity-60"
             >
               <option value="true">Active</option>
               <option value="false">Suspended</option>
@@ -118,7 +118,7 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
               name="resetMinutes"
               value="true"
               disabled={isPending}
-              className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+              className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
             />
             Reset minute counter to 0
           </label>
@@ -128,14 +128,14 @@ export function EditPlanModal({ tenant }: { tenant: TenantResponse }) {
               type="button"
               onClick={closeModal}
               disabled={isPending}
-              className="w-1/2 rounded-md border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
+              className="w-1/2 rounded-lg border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="w-1/2 flex items-center justify-center gap-2 rounded-md bg-[#0f766e] py-2 text-sm font-semibold text-white hover:bg-teal-800 transition-colors disabled:opacity-60 shadow-sm"
+              className="w-1/2 flex items-center justify-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] py-2 text-sm font-semibold text-white transition-colors disabled:opacity-60 shadow-md"
             >
               {isPending ? (
                 <>

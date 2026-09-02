@@ -201,7 +201,7 @@ export function ExpensesClient({
       case "marketing":
         return <Megaphone size={14} className="text-rose-700" />;
       default:
-        return <Briefcase size={14} className="text-teal-700" />;
+        return <Briefcase size={14} className="text-[#071D75]" />;
     }
   };
 
@@ -219,7 +219,7 @@ export function ExpensesClient({
   const getMarginBadge = (item: CogsMarginItem) => {
     if (item.unitCogs === 0) {
       return (
-        <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600 border border-stone-200">
+        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 border border-slate-200">
           No COGS Logged ($0.00)
         </span>
       );
@@ -238,13 +238,13 @@ export function ExpensesClient({
       {/* Header Banner */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-teal-700">FINANCE & COST CONTROL</p>
-          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-stone-900">Expense & COGS Management</h2>
+          <p className="text-xs font-bold uppercase tracking-wider text-[#071D75]">FINANCE & COST CONTROL</p>
+          <h2 className="mt-1 text-3xl font-semibold tracking-tight text-[#080C42]">Expense & COGS Management</h2>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setIsLogExpenseOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] shadow-sm transition hover:bg-[#cde05e]"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#071D75] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#080C42]"
           >
             <Plus size={16} /> Log New Expense
           </button>
@@ -253,20 +253,20 @@ export function ExpensesClient({
 
       {/* Top 3 Summary Metrics */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-xs flex items-center justify-between">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Total Operating Expenses</p>
-            <h3 className="text-2xl font-extrabold text-stone-900 mt-1">${totalExpenseSum.toFixed(2)}</h3>
-            <p className="text-xs text-stone-500 mt-1">{expenses.length} logged expense items</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Operating Expenses</p>
+            <h3 className="text-2xl font-extrabold text-slate-900 mt-1">${totalExpenseSum.toFixed(2)}</h3>
+            <p className="text-xs text-slate-500 mt-1">{expenses.length} logged expense items</p>
           </div>
           <div className="rounded-xl bg-rose-50 p-3 text-rose-700 border border-rose-100">
             <Receipt size={24} />
           </div>
         </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-xs flex items-center justify-between">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-stone-500">COGS & Material Expenses</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">COGS & Material Expenses</p>
             <h3 className="text-2xl font-extrabold text-amber-700 mt-1">${(categoryTotals["cogs_materials"] || 0).toFixed(2)}</h3>
             <p className="text-xs text-amber-700 font-medium mt-1">Direct product/service cost</p>
           </div>
@@ -275,26 +275,26 @@ export function ExpensesClient({
           </div>
         </div>
 
-        <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-xs flex items-center justify-between">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Tracked Catalog Items</p>
-            <h3 className="text-2xl font-extrabold text-teal-800 mt-1">{cogsMargins.length} Items</h3>
-            <p className="text-xs text-teal-800 font-medium mt-1">With gross margin analysis</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Tracked Catalog Items</p>
+            <h3 className="text-2xl font-extrabold text-[#080C42] mt-1">{cogsMargins.length} Items</h3>
+            <p className="text-xs text-[#071D75] font-medium mt-1">With gross margin analysis</p>
           </div>
-          <div className="rounded-xl bg-teal-50 p-3 text-teal-800 border border-teal-100">
+          <div className="rounded-xl bg-blue-50 p-3 text-[#071D75] border border-blue-100">
             <Percent size={24} />
           </div>
         </div>
       </div>
 
       {/* Mode Tabs: Expense Log vs COGS Margins */}
-      <div className="flex border-b border-stone-200">
+      <div className="flex border-b border-slate-200">
         <button
           onClick={() => setActiveTab("expenses")}
           className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
             activeTab === "expenses"
-              ? "border-teal-700 text-teal-800"
-              : "border-transparent text-stone-500 hover:text-stone-800"
+              ? "border-[#080C42] text-[#080C42]"
+              : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           <Receipt size={16} /> All Logged Expenses ({expenses.length})
@@ -303,8 +303,8 @@ export function ExpensesClient({
           onClick={() => setActiveTab("cogs")}
           className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-bold transition ${
             activeTab === "cogs"
-              ? "border-teal-700 text-teal-800"
-              : "border-transparent text-stone-500 hover:text-stone-800"
+              ? "border-[#080C42] text-[#080C42]"
+              : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           <TrendingUp size={16} /> COGS & Gross Margins ({cogsMargins.length})
@@ -437,13 +437,13 @@ export function ExpensesClient({
                         <button
                           type="button"
                           onClick={() => handleOpenSetCogsModal(item)}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-mono font-bold text-stone-800 hover:border-teal-400 hover:bg-teal-50/50 hover:text-teal-900 transition-colors shadow-2xs group"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-mono font-bold text-slate-800 hover:border-[#071D75] hover:bg-blue-50/50 hover:text-[#080C42] transition-colors shadow-2xs group"
                           title="Click to set/edit unit COGS price directly"
                         >
-                          <span className={item.unitCogs > 0 ? "text-rose-700 font-bold" : "text-stone-400"}>
+                          <span className={item.unitCogs > 0 ? "text-rose-700 font-bold" : "text-slate-400"}>
                             ${item.unitCogs.toFixed(2)}
                           </span>
-                          <Edit3 size={12} className="text-stone-400 group-hover:text-teal-700" />
+                          <Edit3 size={12} className="text-slate-400 group-hover:text-[#071D75]" />
                         </button>
                       </td>
                       <td className="px-5 py-3.5 font-mono text-emerald-700 font-bold">
@@ -455,13 +455,13 @@ export function ExpensesClient({
                       <td className="px-5 py-3.5 text-right space-x-1.5">
                         <button
                           onClick={() => handleOpenSetCogsModal(item)}
-                          className="inline-flex items-center gap-1 rounded-md bg-[#ddf070] px-2.5 py-1 text-xs font-semibold text-[#12382e] hover:bg-[#cde05e] shadow-xs"
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#071D75] px-2.5 py-1 text-xs font-bold text-white hover:bg-[#080C42] shadow-xs"
                         >
                           <Edit3 size={11} /> Set Unit COGS
                         </button>
                         <button
                           onClick={() => handleOpenAddCogsModal(item)}
-                          className="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-700 hover:bg-stone-50 shadow-xs"
+                          className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs"
                         >
                           <Plus size={11} /> Log Expense
                         </button>
@@ -478,10 +478,10 @@ export function ExpensesClient({
       {/* Log Expense Modal */}
       {isLogExpenseOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Receipt className="text-teal-700" size={18} /> Log Supplier / Business Expense
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[#080C42]">
+                <Receipt className="text-[#071D75]" size={18} /> Log Supplier / Business Expense
               </h3>
               <button onClick={() => setIsLogExpenseOpen(false)} className="text-stone-400 hover:text-stone-600">
                 <X size={18} />
@@ -610,7 +610,7 @@ export function ExpensesClient({
                 <button
                   type="submit"
                   disabled={isLoggingExpense}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
                 >
                   {isLoggingExpense && <Loader2 size={16} className="animate-spin" />}
                   Save Expense
@@ -626,8 +626,8 @@ export function ExpensesClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Edit3 className="text-teal-700" size={18} /> Set Unit COGS / Direct Cost
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[#080C42]">
+                <Edit3 className="text-[#071D75]" size={18} /> Set Unit COGS / Direct Cost
               </h3>
               <button onClick={() => setEditCogsModalItem(null)} className="text-stone-400 hover:text-stone-600">
                 <X size={18} />
@@ -667,21 +667,21 @@ export function ExpensesClient({
                     value={customUnitCogs === 0 ? "" : customUnitCogs}
                     onChange={(e) => setCustomUnitCogs(parseFloat(e.target.value) || 0)}
                     placeholder="0.00"
-                    className="w-full rounded-md border border-stone-300 bg-white pl-8 pr-3 py-2 text-lg font-mono font-bold text-stone-900 focus:outline-none focus:border-teal-600"
+                    className="w-full rounded-md border border-stone-300 bg-white pl-8 pr-3 py-2 text-lg font-mono font-bold text-stone-900 focus:outline-none focus:border-[#071D75]"
                   />
                 </div>
               </div>
 
               {/* Dynamic Live Profit & Margin Preview */}
               {editCogsModalItem.salePrice > 0 && (
-                <div className="rounded-lg border border-teal-200 bg-teal-50/60 p-3 text-xs space-y-1">
-                  <div className="flex justify-between font-semibold text-teal-900">
+                <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 text-xs space-y-1">
+                  <div className="flex justify-between font-semibold text-[#080C42]">
                     <span>Projected Gross Profit / Unit:</span>
                     <span className="font-mono font-bold">
                       ${Math.max(0, editCogsModalItem.salePrice - customUnitCogs).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between font-semibold text-teal-900">
+                  <div className="flex justify-between font-semibold text-[#080C42]">
                     <span>Projected Gross Margin:</span>
                     <span className="font-mono font-bold">
                       {Math.max(0, Math.round(((editCogsModalItem.salePrice - customUnitCogs) / editCogsModalItem.salePrice) * 1000) / 10)}%
@@ -701,7 +701,7 @@ export function ExpensesClient({
                 <button
                   type="submit"
                   disabled={isSavingCogs}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#ddf070] px-4 py-2 text-sm font-semibold text-[#12382e] hover:bg-[#cde05e] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-[#080C42] hover:bg-[#071D75] px-5 py-2 text-sm font-semibold text-white shadow-md transition-all disabled:opacity-50"
                 >
                   {isSavingCogs && <Loader2 size={16} className="animate-spin" />}
                   Save COGS Price
@@ -717,31 +717,31 @@ export function ExpensesClient({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-6 text-stone-900 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Receipt className="text-teal-700" size={18} /> Vendor Receipt
+              <h3 className="text-lg font-bold flex items-center gap-2 text-[#080C42]">
+                <Receipt className="text-[#071D75]" size={18} /> Vendor Receipt
               </h3>
-              <button onClick={() => setViewingReceipt(null)} className="text-stone-400 hover:text-stone-600">
+              <button onClick={() => setViewingReceipt(null)} className="text-slate-400 hover:text-slate-600">
                 <X size={18} />
               </button>
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-lg border border-stone-200 bg-stone-50 p-3 text-xs space-y-1">
-                <div className="flex justify-between font-semibold text-stone-900">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs space-y-1">
+                <div className="flex justify-between font-semibold text-slate-900">
                   <span>{viewingReceipt.title}</span>
                   <span className="font-mono">${viewingReceipt.amount.toFixed(2)}</span>
                 </div>
-                <p className="text-stone-500">Vendor: {viewingReceipt.vendorName || "Not specified"}</p>
-                <p className="text-stone-500">Date: {new Date(viewingReceipt.expenseDate).toLocaleDateString()}</p>
+                <p className="text-slate-500">Vendor: {viewingReceipt.vendorName || "Not specified"}</p>
+                <p className="text-slate-500">Date: {new Date(viewingReceipt.expenseDate).toLocaleDateString()}</p>
               </div>
 
               {viewingReceipt.receiptUrl && (
-                <div className="rounded-lg border border-stone-200 bg-stone-100 p-2 text-center">
+                <div className="rounded-xl border border-slate-200 bg-slate-100 p-2 text-center">
                   <a
                     href={viewingReceipt.receiptUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#071D75] hover:underline"
                   >
                     <ExternalLink size={13} /> View Attached Full Receipt Image
                   </a>

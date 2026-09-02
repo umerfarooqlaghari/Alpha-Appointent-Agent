@@ -1,6 +1,7 @@
 "use client";
 
 import { Mic, PhoneOff, Radio, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type CallStatus = "Initializing" | "Ready" | "Connecting" | "Listening" | "Speaking" | "Ended" | "Error";
@@ -180,21 +181,29 @@ export function CallWidget({ tenantId, tenantName, industryType = "", currency =
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-[#12382e] p-6">
-      <section className="w-full max-w-lg text-center bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-2xl shadow-2xl text-white">
-        <p className="text-xs font-bold tracking-[0.24em] text-[#ddf070] uppercase">{tenantName}</p>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight">Talk to our receptionist</h1>
-        <p className="mt-2 text-sm text-emerald-100/80">Ask about availability, services, or book your next visit.</p>
+    <main className="grid min-h-screen place-items-center bg-[#080C42] p-6">
+      <section className="w-full max-w-lg text-center bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-3xl shadow-2xl text-white">
+        <div className="mx-auto relative size-16 overflow-hidden rounded-2xl border border-white/20 shadow-lg mb-4">
+          <Image
+            src="/logo.jpg"
+            alt="Logo"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <p className="text-xs font-bold tracking-[0.24em] text-blue-300 uppercase">{tenantName}</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">Talk to our receptionist</h1>
+        <p className="mt-2 text-sm text-blue-100/80">Ask about availability, services, or book your next visit.</p>
 
-        <div className="mt-10">
+        <div className="mt-9">
           <div className={`mx-auto grid size-32 place-items-center rounded-full border transition-all duration-300 ${
             active
-              ? "animate-pulse bg-[#ddf070] text-[#12382e] shadow-lg shadow-[#ddf070]/20 border-[#ddf070]/50"
+              ? "animate-pulse bg-[#071D75] text-white shadow-xl shadow-[#071D75]/40 border-blue-400"
               : isError
               ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
               : initializing
-              ? "bg-white/5 text-emerald-200/40 border-white/10"
-              : "bg-white/10 text-emerald-100 border-white/20"
+              ? "bg-white/5 text-blue-200/40 border-white/10"
+              : "bg-white/10 text-blue-100 border-white/20"
           }`}>
             {initializing
               ? <Loader2 size={36} className="animate-spin" />
@@ -202,7 +211,7 @@ export function CallWidget({ tenantId, tenantName, industryType = "", currency =
             }
           </div>
           <p className="mt-6 text-xl font-bold">{statusLabel[status]}</p>
-          <p className={`mt-1 text-xs ${isError ? "text-rose-300" : "text-emerald-200/70"}`}>
+          <p className={`mt-1 text-xs ${isError ? "text-rose-300" : "text-blue-200/80"}`}>
             {subLabel[status]}
           </p>
         </div>
@@ -229,7 +238,7 @@ export function CallWidget({ tenantId, tenantName, industryType = "", currency =
               id="start-call-btn"
               onClick={startCall}
               disabled={initializing}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#ddf070] hover:bg-[#cbe05d] disabled:opacity-40 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-[#12382e] transition shadow-md"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#071D75] hover:bg-[#0a299e] disabled:opacity-40 disabled:cursor-not-allowed px-6 py-3 text-sm font-bold text-white transition shadow-lg hover:shadow-blue-500/20"
             >
               {initializing ? (
                 <><Loader2 size={18} className="animate-spin" /> Loading...</>
@@ -240,7 +249,7 @@ export function CallWidget({ tenantId, tenantName, industryType = "", currency =
           )}
         </div>
 
-        <p className="mt-8 text-[10px] uppercase tracking-widest text-emerald-300/60 font-semibold">Powered by Relay Desk</p>
+        <p className="mt-8 text-[10px] uppercase tracking-widest text-blue-300/60 font-semibold">Powered by Relay Desk</p>
       </section>
     </main>
   );
