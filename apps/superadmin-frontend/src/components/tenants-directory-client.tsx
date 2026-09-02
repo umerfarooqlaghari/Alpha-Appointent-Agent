@@ -187,6 +187,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   <option value="service">Service / Appointments (Slots & Bookings)</option>
                   <option value="retail">E-Commerce / Retail (Inventory & Product Orders)</option>
                   <option value="healthcare">Healthcare / Clinic (Doctor Slots & Visits)</option>
+                  <option value="software">Software / IT & Tech (Subscriptions, Products & Services)</option>
                   <option value="general">General / Other</option>
                 </select>
               </label>
@@ -426,6 +427,7 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                   <option value="service">Service / Appointments (Slots & Bookings)</option>
                   <option value="retail">E-Commerce / Retail (Inventory & Product Orders)</option>
                   <option value="healthcare">Healthcare / Clinic (Doctor Slots & Visits)</option>
+                  <option value="software">Software / IT & Tech (Subscriptions, Projects & Services)</option>
                   <option value="general">General / Other</option>
                 </select>
               </label>
