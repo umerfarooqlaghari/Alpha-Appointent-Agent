@@ -31,6 +31,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
     public DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<ItemCogs> ItemCogs => Set<ItemCogs>();
+    public DbSet<ServiceFulfillment> ServiceFulfillments => Set<ServiceFulfillment>();
+    public DbSet<StaffRole> StaffRoles => Set<StaffRole>();
+    public DbSet<StaffMember> StaffMembers => Set<StaffMember>();
+    public DbSet<StaffShift> StaffShifts => Set<StaffShift>();
+    public DbSet<DispatchTask> DispatchTasks => Set<DispatchTask>();
+    public DbSet<EmailLogAlert> EmailLogsAlerts => Set<EmailLogAlert>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Tenant>(entity => { entity.ToTable("tenants"); entity.HasKey(item => item.TenantId); entity.Property(item => item.TenantId).HasColumnName("tenant_id"); entity.Property(item => item.Name).HasColumnName("name"); entity.Property(item => item.Status).HasColumnName("status"); entity.Property(item => item.CreatedAt).HasColumnName("created_at"); });
@@ -223,6 +229,103 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
             entity.Property(item => item.ItemType).HasColumnName("item_type");
             entity.Property(item => item.UnitCogs).HasColumnName("unit_cogs");
             entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<ServiceFulfillment>(entity => {
+            entity.ToTable("service_fulfillments");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.ReferenceType).HasColumnName("reference_type");
+            entity.Property(item => item.ReferenceId).HasColumnName("reference_id");
+            entity.Property(item => item.CustomerName).HasColumnName("customer_name");
+            entity.Property(item => item.CustomerPhone).HasColumnName("customer_phone");
+            entity.Property(item => item.CustomerEmail).HasColumnName("customer_email");
+            entity.Property(item => item.ServiceTitle).HasColumnName("service_title");
+            entity.Property(item => item.ScheduledAt).HasColumnName("scheduled_at");
+            entity.Property(item => item.Priority).HasColumnName("priority");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.AssignedStaffId).HasColumnName("assigned_staff_id");
+            entity.Property(item => item.AssignedStaffName).HasColumnName("assigned_staff_name");
+            entity.Property(item => item.Notes).HasColumnName("notes");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<StaffRole>(entity => {
+            entity.ToTable("staff_roles");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.RoleName).HasColumnName("role_name");
+            entity.Property(item => item.Description).HasColumnName("description");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<StaffMember>(entity => {
+            entity.ToTable("staff_members");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.Name).HasColumnName("name");
+            entity.Property(item => item.Email).HasColumnName("email");
+            entity.Property(item => item.Phone).HasColumnName("phone");
+            entity.Property(item => item.Role).HasColumnName("role");
+            entity.Property(item => item.Skills).HasColumnName("skills");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<StaffShift>(entity => {
+            entity.ToTable("staff_shifts");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.StaffName).HasColumnName("staff_name");
+            entity.Property(item => item.StaffEmail).HasColumnName("staff_email");
+            entity.Property(item => item.Role).HasColumnName("role");
+            entity.Property(item => item.ShiftDate).HasColumnName("shift_date");
+            entity.Property(item => item.StartTime).HasColumnName("start_time");
+            entity.Property(item => item.EndTime).HasColumnName("end_time");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<DispatchTask>(entity => {
+            entity.ToTable("dispatch_tasks");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.Title).HasColumnName("title");
+            entity.Property(item => item.Description).HasColumnName("description");
+            entity.Property(item => item.FulfillmentId).HasColumnName("fulfillment_id");
+            entity.Property(item => item.AssignedToName).HasColumnName("assigned_to_name");
+            entity.Property(item => item.AssignedToEmail).HasColumnName("assigned_to_email");
+            entity.Property(item => item.Priority).HasColumnName("priority");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.DueDate).HasColumnName("due_date");
+            entity.Property(item => item.CheckInNotes).HasColumnName("check_in_notes");
+            entity.Property(item => item.CompletedAt).HasColumnName("completed_at");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
+            entity.Property(item => item.UpdatedAt).HasColumnName("updated_at");
+        });
+
+        modelBuilder.Entity<EmailLogAlert>(entity => {
+            entity.ToTable("email_logs_alerts");
+            entity.HasKey(item => item.Id);
+            entity.Property(item => item.Id).HasColumnName("id");
+            entity.Property(item => item.TenantId).HasColumnName("tenant_id");
+            entity.Property(item => item.EmailType).HasColumnName("email_type");
+            entity.Property(item => item.RecipientEmail).HasColumnName("recipient_email");
+            entity.Property(item => item.RecipientName).HasColumnName("recipient_name");
+            entity.Property(item => item.Subject).HasColumnName("subject");
+            entity.Property(item => item.BodyPreview).HasColumnName("body_preview");
+            entity.Property(item => item.Status).HasColumnName("status");
+            entity.Property(item => item.TriggeredBy).HasColumnName("triggered_by");
+            entity.Property(item => item.SentAt).HasColumnName("sent_at");
+            entity.Property(item => item.CreatedAt).HasColumnName("created_at");
         });
     }
 }

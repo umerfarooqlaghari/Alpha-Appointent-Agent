@@ -22,7 +22,11 @@ import {
   Kanban,
   FileText,
   ShoppingBag,
-  BarChart3
+  BarChart3,
+  CheckSquare,
+  Users,
+  Mail,
+  Cpu
 } from "lucide-react";
 import { logout } from "@/app/actions";
 
@@ -32,11 +36,10 @@ interface NavItem {
   suffix: string;
 }
 
-interface SalesSubModule {
+interface SubModuleItem {
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   suffix: string;
-  badge?: string;
 }
 
 const mainNavItems: NavItem[] = [
@@ -51,24 +54,23 @@ const mainNavItems: NavItem[] = [
   { label: "FAQs", icon: HelpCircle, suffix: "/faqs" },
 ];
 
-const salesSubModules: SalesSubModule[] = [
-  { label: "Leads & Pipeline", icon: Kanban, suffix: "/leads", badge: "1.1" },
-  { label: "Quotes & Proposals", icon: FileText, suffix: "/quotes", badge: "1.2" },
-  { label: "Unified Orders", icon: ShoppingBag, suffix: "/sales-orders", badge: "1.3" },
-  { label: "Analytics", icon: BarChart3, suffix: "/sales-analytics", badge: "1.4" },
+const salesSubModules: SubModuleItem[] = [
+  { label: "Leads & Pipeline", icon: Kanban, suffix: "/leads" },
+  { label: "Quotes & Proposals", icon: FileText, suffix: "/quotes" },
+  { label: "Unified Orders", icon: ShoppingBag, suffix: "/sales-orders" },
+  { label: "Analytics", icon: BarChart3, suffix: "/sales-analytics" },
 ];
 
-interface FinanceSubModule {
-  label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
-  suffix: string;
-  badge?: string;
-}
+const financeSubModules: SubModuleItem[] = [
+  { label: "Invoicing & Billing", icon: FileText, suffix: "/invoices" },
+  { label: "Expense & COGS", icon: CreditCard, suffix: "/expenses" },
+  { label: "Accounts Receivable", icon: TrendingUp, suffix: "/receivables" },
+];
 
-const financeSubModules: FinanceSubModule[] = [
-  { label: "Invoicing & Billing", icon: FileText, suffix: "/invoices", badge: "2.1" },
-  { label: "Expense & COGS", icon: CreditCard, suffix: "/expenses", badge: "2.2" },
-  { label: "Accounts Receivable", icon: TrendingUp, suffix: "/receivables", badge: "2.3" },
+const operationsSubModules: SubModuleItem[] = [
+  { label: "Service Fulfillment", icon: CheckSquare, suffix: "/fulfillment" },
+  { label: "Staff & Dispatch", icon: Users, suffix: "/dispatch" },
+  { label: "Email Alerts & Logs", icon: Mail, suffix: "/email-alerts" },
 ];
 
 export function TenantNav({
@@ -96,13 +98,19 @@ export function TenantNav({
     return !disabledList.includes(key);
   });
 
-  // Check if any sales sub-route is active to auto-expand
-  const isSalesActive = visibleSalesSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
-  const [isSalesOpen, setIsSalesOpen] = useState<boolean>(true);
+  const visibleOperationsSubModules = operationsSubModules.filter((sub) => {
+    const key = sub.suffix.replace("/", "").toLowerCase();
+    return !disabledList.includes(key);
+  });
 
-  // Check if any finance sub-route is active to auto-expand
+  const isSalesActive = visibleSalesSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
+  const [isSalesOpen, setIsSalesOpen] = useState<boolean>(false);
+
   const isFinanceActive = visibleFinanceSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
-  const [isFinanceOpen, setIsFinanceOpen] = useState<boolean>(true);
+  const [isFinanceOpen, setIsFinanceOpen] = useState<boolean>(false);
+
+  const isOperationsActive = visibleOperationsSubModules.some((sub) => pathname === `${basePath}${sub.suffix}`);
+  const [isOperationsOpen, setIsOperationsOpen] = useState<boolean>(false);
 
   const visibleNavItems = mainNavItems.filter((item) => {
     const labelLower = item.label.toLowerCase();
@@ -183,7 +191,7 @@ export function TenantNav({
 
               {isSalesOpen && (
                 <div className="ml-4 mt-1 space-y-1 border-l border-blue-800/50 pl-3">
-                  {visibleSalesSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
+                  {visibleSalesSubModules.map(({ label, icon: SubIcon, suffix }) => {
                     const href = `${basePath}${suffix}`;
                     const isCurrent = pathname === href;
                     return (
@@ -194,21 +202,14 @@ export function TenantNav({
                           if (isCurrent) e.preventDefault();
                         }}
                         aria-current={isCurrent ? "page" : undefined}
-                        className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                        className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition ${
                           isCurrent
                             ? "bg-[#071D75] text-white font-bold cursor-default shadow-xs"
                             : "text-blue-200/80 hover:bg-white/10 hover:text-white"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <SubIcon size={15} />
-                          <span>{label}</span>
-                        </div>
-                        {badge && (
-                          <span className="rounded bg-[#071D75]/60 px-1.5 py-0.5 text-[10px] font-mono text-blue-200 border border-blue-500/30">
-                            {badge}
-                          </span>
-                        )}
+                        <SubIcon size={15} />
+                        <span>{label}</span>
                       </Link>
                     );
                   })}
@@ -237,7 +238,7 @@ export function TenantNav({
 
               {isFinanceOpen && (
                 <div className="ml-4 mt-1 space-y-1 border-l border-blue-800/50 pl-3">
-                  {visibleFinanceSubModules.map(({ label, icon: SubIcon, suffix, badge }) => {
+                  {visibleFinanceSubModules.map(({ label, icon: SubIcon, suffix }) => {
                     const href = `${basePath}${suffix}`;
                     const isCurrent = pathname === href;
                     return (
@@ -248,21 +249,61 @@ export function TenantNav({
                           if (isCurrent) e.preventDefault();
                         }}
                         aria-current={isCurrent ? "page" : undefined}
-                        className={`flex items-center justify-between rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                        className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition ${
                           isCurrent
                             ? "bg-[#071D75] text-white font-bold cursor-default shadow-xs"
                             : "text-blue-200/80 hover:bg-white/10 hover:text-white"
                         }`}
                       >
-                        <div className="flex items-center gap-2">
-                          <SubIcon size={15} />
-                          <span>{label}</span>
-                        </div>
-                        {badge && (
-                          <span className="rounded bg-[#071D75]/60 px-1.5 py-0.5 text-[10px] font-mono text-blue-200 border border-blue-500/30">
-                            {badge}
-                          </span>
-                        )}
+                        <SubIcon size={15} />
+                        <span>{label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Operations Module Group Dropdown */}
+          {visibleOperationsSubModules.length > 0 && (
+            <div className="pt-2">
+              <button
+                onClick={() => setIsOperationsOpen((prev) => !prev)}
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold transition ${
+                  isOperationsActive
+                    ? "bg-white/10 text-white"
+                    : "text-blue-100/90 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Cpu size={18} className="text-blue-300" />
+                  <span>Operations Module</span>
+                </div>
+                {isOperationsOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </button>
+
+              {isOperationsOpen && (
+                <div className="ml-4 mt-1 space-y-1 border-l border-blue-800/50 pl-3">
+                  {visibleOperationsSubModules.map(({ label, icon: SubIcon, suffix }) => {
+                    const href = `${basePath}${suffix}`;
+                    const isCurrent = pathname === href;
+                    return (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={(e) => {
+                          if (isCurrent) e.preventDefault();
+                        }}
+                        aria-current={isCurrent ? "page" : undefined}
+                        className={`flex items-center gap-2.5 rounded-md px-2.5 py-2 text-xs font-medium transition ${
+                          isCurrent
+                            ? "bg-[#071D75] text-white font-bold cursor-default shadow-xs"
+                            : "text-blue-200/80 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        <SubIcon size={15} />
+                        <span>{label}</span>
                       </Link>
                     );
                   })}

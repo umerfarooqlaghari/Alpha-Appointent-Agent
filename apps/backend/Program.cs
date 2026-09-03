@@ -22,6 +22,7 @@ var jwtSecret = builder.Configuration["JWT_SECRET"]
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddScoped<AvailabilityScheduleService>();
+builder.Services.AddScoped<IEmailNotificationService, AwsSesEmailService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -329,6 +330,97 @@ await using (var scope = app.Services.CreateAsyncScope())
         );
         CREATE INDEX IF NOT EXISTS idx_item_cogs_tenant ON item_cogs (tenant_id);
         CREATE INDEX IF NOT EXISTS idx_item_cogs_item ON item_cogs (item_id);
+
+        CREATE TABLE IF NOT EXISTS service_fulfillments (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            reference_type TEXT NOT NULL DEFAULT 'manual',
+            reference_id TEXT,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            customer_email TEXT,
+            service_title TEXT NOT NULL,
+            scheduled_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            priority TEXT NOT NULL DEFAULT 'normal',
+            status TEXT NOT NULL DEFAULT 'queued',
+            assigned_staff_id TEXT,
+            assigned_staff_name TEXT,
+            notes TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_fulfillments_tenant ON service_fulfillments (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS staff_roles (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            role_name TEXT NOT NULL,
+            description TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_staff_roles_tenant ON staff_roles (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS staff_members (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT,
+            phone TEXT,
+            role TEXT NOT NULL DEFAULT 'technician',
+            skills TEXT,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_staff_members_tenant ON staff_members (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS staff_shifts (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            staff_name TEXT NOT NULL,
+            staff_email TEXT,
+            role TEXT NOT NULL DEFAULT 'technician',
+            shift_date DATE NOT NULL,
+            start_time TEXT NOT NULL DEFAULT '09:00',
+            end_time TEXT NOT NULL DEFAULT '17:00',
+            status TEXT NOT NULL DEFAULT 'scheduled',
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_shifts_tenant ON staff_shifts (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS dispatch_tasks (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT,
+            fulfillment_id TEXT,
+            assigned_to_name TEXT NOT NULL,
+            assigned_to_email TEXT,
+            priority TEXT NOT NULL DEFAULT 'medium',
+            status TEXT NOT NULL DEFAULT 'pending',
+            due_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            check_in_notes TEXT,
+            completed_at TIMESTAMP WITH TIME ZONE,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_tasks_tenant ON dispatch_tasks (tenant_id);
+
+        CREATE TABLE IF NOT EXISTS email_logs_alerts (
+            id TEXT PRIMARY KEY,
+            tenant_id TEXT NOT NULL,
+            email_type TEXT NOT NULL DEFAULT 'transactional_confirmation',
+            recipient_email TEXT NOT NULL,
+            recipient_name TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            body_preview TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'sent',
+            triggered_by TEXT NOT NULL DEFAULT 'system',
+            sent_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE INDEX IF NOT EXISTS idx_email_logs_tenant ON email_logs_alerts (tenant_id);
         """);
 
     if (!await db.SubscriptionPlans.AnyAsync())

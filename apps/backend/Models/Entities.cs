@@ -236,3 +236,94 @@ public sealed class ItemCogs
     public decimal UnitCogs { get; set; } = 0;
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
+
+public sealed class ServiceFulfillment
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string ReferenceType { get; set; } = "manual"; // appointment, order, quote, manual
+    public string? ReferenceId { get; set; }
+    public string CustomerName { get; set; } = "";
+    public string CustomerPhone { get; set; } = "";
+    public string? CustomerEmail { get; set; }
+    public string ServiceTitle { get; set; } = "";
+    public DateTimeOffset ScheduledAt { get; set; } = DateTimeOffset.UtcNow;
+    public string Priority { get; set; } = "normal"; // normal, urgent, vip
+    public string Status { get; set; } = "queued"; // queued, confirmed, in_progress, completed, cancelled
+    public string? AssignedStaffId { get; set; }
+    public string? AssignedStaffName { get; set; }
+    public string? Notes { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class StaffRole
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string RoleName { get; set; } = "";
+    public string? Description { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class StaffMember
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
+    public string Role { get; set; } = "technician"; // technician, dispatcher, driver, support, manager
+    public string? Skills { get; set; }
+    public string Status { get; set; } = "active"; // active, inactive, on_leave
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class StaffShift
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string StaffName { get; set; } = "";
+    public string? StaffEmail { get; set; }
+    public string Role { get; set; } = "technician"; // technician, dispatcher, driver, support, manager
+    public DateOnly ShiftDate { get; set; }
+    public string StartTime { get; set; } = "09:00";
+    public string EndTime { get; set; } = "17:00";
+    public string Status { get; set; } = "scheduled"; // scheduled, active, completed, off
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class DispatchTask
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string? Description { get; set; }
+    public string? FulfillmentId { get; set; }
+    public string AssignedToName { get; set; } = "";
+    public string? AssignedToEmail { get; set; }
+    public string Priority { get; set; } = "medium"; // low, medium, high, critical
+    public string Status { get; set; } = "pending"; // pending, in_progress, completed, blocked
+    public DateTimeOffset DueDate { get; set; } = DateTimeOffset.UtcNow.AddDays(1);
+    public string? CheckInNotes { get; set; }
+    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
+}
+
+public sealed class EmailLogAlert
+{
+    public string Id { get; set; } = "";
+    public string TenantId { get; set; } = "";
+    public string EmailType { get; set; } = "transactional_confirmation"; // transactional_confirmation, post_call_summary, financial_digest_daily, financial_digest_monthly, escalation_alert
+    public string RecipientEmail { get; set; } = "";
+    public string RecipientName { get; set; } = "";
+    public string Subject { get; set; } = "";
+    public string BodyPreview { get; set; } = "";
+    public string Status { get; set; } = "sent"; // sent, delivered, failed, queued
+    public string TriggeredBy { get; set; } = "system"; // ai_receptionist, system_cron, admin_dispatch
+    public DateTimeOffset SentAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+}

@@ -110,6 +110,11 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
     if (!formData.get("feat_fin_expenses")) disabledTabsList.push("expenses");
     if (!formData.get("feat_fin_receivables")) disabledTabsList.push("receivables");
 
+    // Operations Module Sub-Modules
+    if (!formData.get("feat_ops_fulfillment")) disabledTabsList.push("fulfillment");
+    if (!formData.get("feat_ops_dispatch")) disabledTabsList.push("dispatch");
+    if (!formData.get("feat_ops_email_alerts")) disabledTabsList.push("email-alerts");
+
     const disabledTabsString = disabledTabsList.join(",");
     formData.set("disabledTabs", disabledTabsString);
     formData.set("industryType", activeFeaturesModalTenant.industryType || "");
@@ -680,6 +685,48 @@ export function TenantsDirectoryClient({ initialTenants }: { initialTenants: Ten
                       className="rounded border-slate-300 text-[#071D75] focus:ring-[#071D75] h-4 w-4"
                     />
                     2.3 Accounts Receivable
+                  </label>
+                </div>
+              </div>
+
+              {/* Operations Module */}
+              <div className="rounded-xl border border-teal-200 bg-teal-50/40 p-3.5 space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+                  <ShieldCheck size={13} className="text-teal-700" /> Operations Module (3.0)
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_ops_fulfillment"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("fulfillment")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-700 focus:ring-teal-700 h-4 w-4"
+                    />
+                    3.1 Service Fulfillment
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_ops_dispatch"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("dispatch")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-700 focus:ring-teal-700 h-4 w-4"
+                    />
+                    3.2 Staff & Task Dispatch
+                  </label>
+                  <label className="flex items-center gap-2 text-xs font-medium text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="feat_ops_email_alerts"
+                      value="true"
+                      defaultChecked={!activeFeaturesModalTenant.disabledTabs?.includes("email-alerts")}
+                      disabled={isPending}
+                      className="rounded border-slate-300 text-teal-700 focus:ring-teal-700 h-4 w-4"
+                    />
+                    3.3 Email Alerts & Logs
                   </label>
                 </div>
               </div>
