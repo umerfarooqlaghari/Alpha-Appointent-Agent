@@ -39,14 +39,16 @@ export default async function TenantDashboardLayout({
   if (!tenant) notFound();
 
   return (
-    <div className="flex min-h-screen bg-stone-50/30">
+    <div className="flex h-screen w-full overflow-hidden bg-stone-50/30">
       <TenantNav
         tenantId={decodedTenantId}
         tenantName={tenant.name}
         disabledTabs={tenant.disabled_tabs}
         industryType={tenant.industry_type}
       />
-      <main className="min-w-0 flex-1 p-6 md:p-10">{children}</main>
+      <main id="tenant-main-content" className="min-w-0 flex-1 h-full overflow-y-auto p-6 md:p-10">
+        {children}
+      </main>
     </div>
   );
 }

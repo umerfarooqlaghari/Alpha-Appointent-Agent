@@ -318,7 +318,7 @@ export function CallLogsClient({
                 <audio
                   controls
                   src={
-                    activeTranscriptLog.recordingUrl.startsWith("http")
+                    activeTranscriptLog.recordingUrl.includes("vapi-public-recordings.s3.amazonaws.com")
                       ? activeTranscriptLog.recordingUrl
                       : `/api/tenants/${encodeURIComponent(tenantId)}/call-logs/${encodeURIComponent(activeTranscriptLog.id)}/audio`
                   }

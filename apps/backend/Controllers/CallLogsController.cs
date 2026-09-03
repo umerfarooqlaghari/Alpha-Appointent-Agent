@@ -56,7 +56,8 @@ public sealed class CallLogsController(AppDbContext db) : ControllerBase
         var log = await db.CallLogs.SingleOrDefaultAsync(c => c.TenantId == tenantId && c.Id == id);
         if (log is null) return Results.NotFound();
 
-        if (!string.IsNullOrWhiteSpace(log.RecordingUrl) && (log.RecordingUrl.StartsWith("http://") || log.RecordingUrl.StartsWith("https://")))
+        // If recordingUrl is a permanent public AWS link, redirect directly
+        if (!string.IsNullOrWhiteSpace(log.RecordingUrl) && log.RecordingUrl.Contains("vapi-public-recordings.s3.amazonaws.com"))
         {
             return Results.Redirect(log.RecordingUrl);
         }
@@ -69,6 +70,10 @@ public sealed class CallLogsController(AppDbContext db) : ControllerBase
         var vapiRes = await client.GetAsync($"https://api.vapi.ai/call/{id}");
         if (!vapiRes.IsSuccessStatusCode)
         {
+            if (!string.IsNullOrWhiteSpace(log.RecordingUrl))
+            {
+                return Results.Redirect(log.RecordingUrl);
+            }
             return Results.Problem($"Failed to fetch audio metadata from Vapi: {vapiRes.StatusCode}");
         }
 
@@ -78,41 +83,40 @@ public sealed class CallLogsController(AppDbContext db) : ControllerBase
 
         string? presignedUrl = null;
         
-        // 1. Check artifact object first (where Vapi places presigned AWS S3/R2 signed audio links)
+        // 1. Check artifact object for presigned audio URLs (includes active AWS4-HMAC-SHA256 signature)
         if (root.TryGetProperty("artifact", out var artifactProp) && artifactProp.ValueKind == System.Text.Json.JsonValueKind.Object)
         {
-            if (artifactProp.TryGetProperty("recordingUrl", out var aRec) && aRec.ValueKind == System.Text.Json.JsonValueKind.String)
-                presignedUrl = aRec.GetString();
-            else if (artifactProp.TryGetProperty("stereoRecordingUrl", out var aStereo) && aStereo.ValueKind == System.Text.Json.JsonValueKind.String)
-                presignedUrl = aStereo.GetString();
-            else if (artifactProp.TryGetProperty("presignedMonoUrl", out var pMono) && pMono.ValueKind == System.Text.Json.JsonValueKind.String)
+            if (artifactProp.TryGetProperty("presignedMonoUrl", out var pMono) && pMono.ValueKind == System.Text.Json.JsonValueKind.String)
                 presignedUrl = pMono.GetString();
             else if (artifactProp.TryGetProperty("presignedStereoUrl", out var pStereo) && pStereo.ValueKind == System.Text.Json.JsonValueKind.String)
                 presignedUrl = pStereo.GetString();
             else if (artifactProp.TryGetProperty("presignedAssistantUrl", out var pAsst) && pAsst.ValueKind == System.Text.Json.JsonValueKind.String)
                 presignedUrl = pAsst.GetString();
+            else if (artifactProp.TryGetProperty("recordingUrl", out var aRec) && aRec.ValueKind == System.Text.Json.JsonValueKind.String)
+                presignedUrl = aRec.GetString();
+            else if (artifactProp.TryGetProperty("stereoRecordingUrl", out var aStereo) && aStereo.ValueKind == System.Text.Json.JsonValueKind.String)
+                presignedUrl = aStereo.GetString();
         }
 
         // 2. Fall back to root level properties
         if (string.IsNullOrWhiteSpace(presignedUrl))
         {
-            if (root.TryGetProperty("recordingUrl", out var recProp) && recProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                presignedUrl = recProp.GetString();
-            else if (root.TryGetProperty("stereoRecordingUrl", out var srecProp) && srecProp.ValueKind == System.Text.Json.JsonValueKind.String)
-                presignedUrl = srecProp.GetString();
-            else if (root.TryGetProperty("presignedMonoUrl", out var monoProp) && monoProp.ValueKind == System.Text.Json.JsonValueKind.String)
+            if (root.TryGetProperty("presignedMonoUrl", out var monoProp) && monoProp.ValueKind == System.Text.Json.JsonValueKind.String)
                 presignedUrl = monoProp.GetString();
             else if (root.TryGetProperty("presignedStereoUrl", out var stereoProp) && stereoProp.ValueKind == System.Text.Json.JsonValueKind.String)
                 presignedUrl = stereoProp.GetString();
+            else if (root.TryGetProperty("recordingUrl", out var recProp) && recProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                presignedUrl = recProp.GetString();
+            else if (root.TryGetProperty("stereoRecordingUrl", out var srecProp) && srecProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                presignedUrl = srecProp.GetString();
         }
 
         if (string.IsNullOrWhiteSpace(presignedUrl))
         {
+            if (!string.IsNullOrWhiteSpace(log.RecordingUrl))
+                return Results.Redirect(log.RecordingUrl);
             return Results.NotFound(new { error = "No recording URL available for this call." });
         }
-
-        log.RecordingUrl = presignedUrl;
-        await db.SaveChangesAsync();
 
         return Results.Redirect(presignedUrl);
     }

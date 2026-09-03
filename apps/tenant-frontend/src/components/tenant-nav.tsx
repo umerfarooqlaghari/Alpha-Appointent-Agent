@@ -130,7 +130,7 @@ export function TenantNav({
   ];
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-[#080C42] text-blue-50 z-30">
+    <aside className="flex h-full w-64 shrink-0 flex-col border-r border-white/10 bg-[#080C42] text-blue-50 z-30">
       {/* Top Branding Section */}
       <div className="shrink-0 p-5 pb-3">
         <div className="flex items-center gap-3">
