@@ -21,3 +21,12 @@ body {
 }
 
 input, select, textarea { outline-color: #071d75; }
+
+/* Freeze background screen when any modal overlay is active */
+html:has(.fixed.inset-0),
+body:has(.fixed.inset-0),
+body:has(.fixed.inset-0) main,
+body:has([role="dialog"]) {
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+}

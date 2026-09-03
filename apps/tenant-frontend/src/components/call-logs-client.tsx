@@ -315,7 +315,15 @@ export function CallLogsClient({
                   <Volume2 size={18} className="text-[#93c5fd]" />
                   <span>Call Audio Recording</span>
                 </div>
-                <audio controls src={`http://127.0.0.1:5000/api/tenants/${encodeURIComponent(tenantId)}/call-logs/${encodeURIComponent(activeTranscriptLog.id)}/audio`} className="h-8 max-w-xs" />
+                <audio
+                  controls
+                  src={
+                    activeTranscriptLog.recordingUrl.startsWith("http")
+                      ? activeTranscriptLog.recordingUrl
+                      : `/api/tenants/${encodeURIComponent(tenantId)}/call-logs/${encodeURIComponent(activeTranscriptLog.id)}/audio`
+                  }
+                  className="h-8 max-w-xs"
+                />
               </div>
             )}
 
