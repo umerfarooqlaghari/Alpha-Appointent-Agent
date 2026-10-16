@@ -22,6 +22,93 @@ public sealed class AuthController(AppDbContext db, IConfiguration config) : Con
         return Results.Ok(new { token = session.AccessToken, refreshToken = session.RefreshToken, user = new { user.Id, user.Name, user.Email, user.Role, tenantId = user.TenantId } });
     }
 
+    [HttpPost("register")]
+    public async Task<IResult> Register(RegisterRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) || string.IsNullOrWhiteSpace(request.CompanyName))
+            return Results.BadRequest(new { error = "Company name, email, and password are required." });
+
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        if (await db.Users.AnyAsync(u => u.Email == normalizedEmail))
+            return Results.Conflict(new { error = "An account with this email address already exists. Please sign in instead." });
+
+        var baseTenant = System.Text.RegularExpressions.Regex.Replace(request.CompanyName.Trim().ToLowerInvariant(), @"[^a-z0-9]", "-").Trim('-');
+        if (string.IsNullOrWhiteSpace(baseTenant)) baseTenant = "workspace";
+        var tenantId = $"{baseTenant}-{Guid.NewGuid().ToString("N")[..6]}";
+
+        var chosenPlan = string.IsNullOrWhiteSpace(request.SelectedPlan) ? "Starter" : request.SelectedPlan.Trim();
+        var planLimit = chosenPlan.ToLowerInvariant() switch
+        {
+            "pro" => 1500,
+            "premium" => 5000,
+            "trial" => 30,
+            _ => 500
+        };
+
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        try
+        {
+            db.Tenants.Add(new Tenant
+            {
+                TenantId = tenantId,
+                Name = request.CompanyName.Trim(),
+                Status = "active",
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+
+            db.TenantConfigs.Add(new TenantConfig
+            {
+                TenantId = tenantId,
+                AdapterType = "postgres",
+                IndustryType = string.IsNullOrWhiteSpace(request.IndustryType) ? "general" : request.IndustryType.Trim(),
+                Currency = "USD"
+            });
+
+            var user = new User
+            {
+                TenantId = tenantId,
+                Name = string.IsNullOrWhiteSpace(request.FullName) ? request.CompanyName.Trim() : request.FullName.Trim(),
+                Email = normalizedEmail,
+                Phone = request.Phone?.Trim(),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = "tenant_admin",
+                IsActive = true,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
+            };
+            db.Users.Add(user);
+
+            var now = DateTimeOffset.UtcNow;
+            db.TenantSubscriptions.Add(new TenantSubscription
+            {
+                Id = $"sub_{Guid.NewGuid().ToString("N")[..8]}",
+                TenantId = tenantId,
+                PlanName = chosenPlan,
+                MonthlyMinutesLimit = planLimit,
+                MinutesUsed = 0.0,
+                CurrentPeriodStart = now,
+                CurrentPeriodEnd = now.AddDays(30),
+                IsActive = true
+            });
+
+            await db.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            var session = await CreateSessionAsync(user);
+            return Results.Ok(new
+            {
+                token = session.AccessToken,
+                refreshToken = session.RefreshToken,
+                user = new { user.Id, user.Name, user.Email, user.Role, tenantId = user.TenantId }
+            });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return Results.Problem($"Registration failed: {ex.Message}");
+        }
+    }
+
     [HttpPost("refresh")]
     public async Task<IResult> Refresh(RefreshRequest request)
     {
@@ -61,5 +148,6 @@ public sealed class AuthController(AppDbContext db, IConfiguration config) : Con
 }
 
 public sealed record LoginRequest(string Email, string Password);
+public sealed record RegisterRequest(string CompanyName, string Email, string Password, string? FullName = null, string? Phone = null, string? SelectedPlan = null, string? IndustryType = null);
 public sealed record RefreshRequest(string RefreshToken);
 public sealed record AuthSession(string AccessToken, string RefreshToken);
