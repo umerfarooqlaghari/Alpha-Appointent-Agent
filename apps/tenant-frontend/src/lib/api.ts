@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const baseUrl = process.env.BACKEND_API_URL
-  ;
+const baseUrl = process.env.BACKEND_API_URL || "http://localhost:5000";
 
 export async function tenantApi<T>(path: string, init?: RequestInit): Promise<T> {
   const token = (await cookies()).get("auth_token")?.value;

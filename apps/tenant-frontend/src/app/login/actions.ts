@@ -3,12 +3,14 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+const backendUrl = process.env.BACKEND_API_URL || "http://localhost:5000";
+
 export async function login(formData: FormData) {
   const email = formData.get("email");
   const password = formData.get("password");
   const redirectTo = formData.get("redirectTo") as string | null;
 
-  const response = await fetch(`${process.env.BACKEND_API_URL}/api/auth/login`, {
+  const response = await fetch(`${backendUrl}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -52,7 +54,7 @@ export async function registerWorkspace(formData: FormData) {
     return { error: "Organization name, email, and password are required." };
   }
 
-  const response = await fetch(`${process.env.BACKEND_API_URL}/api/auth/register`, {
+  const response = await fetch(`${backendUrl}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

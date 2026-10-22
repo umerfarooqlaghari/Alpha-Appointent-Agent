@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Alpha.Appointment.Api.Data;
 using Alpha.Appointment.Api.Models;
+using Alpha.Appointment.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +97,22 @@ public sealed class ServicesController(AppDbContext db) : ControllerBase
         await db.SaveChangesAsync();
 
         return Results.NoContent();
+    }
+
+    [HttpPost("seed")]
+    public async Task<IResult> SeedServices(string tenantId)
+    {
+        if (!CanAccess(tenantId)) return Results.Forbid();
+        var email = User.FindFirstValue(ClaimTypes.Email) ?? "umer.farooq@alpha-devs.cloud";
+        var services = await AuthSeeder.SeedServicesForUserAsync(db, email);
+        return Results.Ok(new { message = "Services seeded successfully.", count = services.Count, services });
+    }
+
+    [AllowAnonymous, HttpPost("/api/public/seed-services")]
+    public async Task<IResult> SeedPublicServices([FromQuery] string email = "umer.farooq@alpha-devs.cloud")
+    {
+        var services = await AuthSeeder.SeedServicesForUserAsync(db, email);
+        return Results.Ok(new { message = "Services seeded successfully.", count = services.Count, services });
     }
 
     private bool CanAccess(string tenantId) => User.IsInRole("superadmin") || User.FindFirstValue("tenant_id") == tenantId;

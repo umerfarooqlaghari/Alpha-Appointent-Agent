@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
-import { MarketingLanding } from "@/components/marketing-landing";
+import { MarketingLanding, type DbPlan } from "@/components/marketing-landing";
+import { tenantApi } from "@/lib/api";
 
 export const metadata = {
   title: "SecureMind • AI Appointment Agent | TechWitPro",
@@ -14,5 +15,8 @@ export default async function Home() {
 
   const loggedInTenant = token && tenantId ? tenantId : null;
 
-  return <MarketingLanding initialLoggedInTenant={loggedInTenant} />;
+  // Fetch subscription plans from backend API dynamically
+  const plans = await tenantApi<DbPlan[]>("/api/public/plans").catch(() => []);
+
+  return <MarketingLanding initialLoggedInTenant={loggedInTenant} initialPlans={plans} />;
 }

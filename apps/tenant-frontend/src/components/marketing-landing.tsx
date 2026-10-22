@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -37,6 +37,15 @@ export type PlanItem = {
   period: string;
   popular?: boolean;
   features: string[];
+};
+
+export type DbPlan = {
+  id: string;
+  planName: string;
+  monthlyMinutesLimit: number;
+  price: number;
+  description: string;
+  isActive: boolean;
 };
 
 const defaultPlans: PlanItem[] = [
@@ -93,11 +102,93 @@ const defaultPlans: PlanItem[] = [
   },
 ];
 
+export function formatPlansFromDb(dbPlans?: DbPlan[] | null): PlanItem[] {
+  if (!dbPlans || !Array.isArray(dbPlans)) return defaultPlans;
+  const activePlans = dbPlans.filter(
+    (p) => p.isActive && p.planName.toLowerCase() !== "trial"
+  );
+  if (activePlans.length === 0) return defaultPlans;
+
+  return activePlans.map((p, idx) => {
+    const priceNum = Number(p.price);
+    const annualPriceNum = priceNum * 0.8;
+    const isPopular = p.planName.toLowerCase().includes("pro") || idx === 1;
+
+    let featureList: string[] = [];
+    if (p.description && p.description.includes(";")) {
+      featureList = p.description.split(";").map((s) => s.trim()).filter(Boolean);
+    } else if (p.description && p.description.includes(",")) {
+      featureList = p.description.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
+    if (featureList.length === 0) {
+      if (idx === 0) {
+        featureList = [
+          `${p.monthlyMinutesLimit.toLocaleString()} calling minutes included monthly`,
+          p.description || "Full n8n appointment automation",
+          "Multi-calendar sync (Google & Outlook)",
+          "Domain whitelisting & DDoS protection",
+          "Standard conversational AI voice model",
+          "Full FAQ catalog & business knowledge base",
+          "Instant SMS & email confirmations",
+        ];
+      } else if (idx === 1) {
+        featureList = [
+          `${p.monthlyMinutesLimit.toLocaleString()} calling minutes included monthly`,
+          p.description || "High-priority ultra-low latency voice pipeline",
+          "Multi-staff dispatch & skills matching",
+          "Custom voice prompt tuning & accents",
+          "Automated rescheduling & cancellation logic",
+          "Embeddable web call widget for your site",
+          "Priority email & chat support",
+        ];
+      } else {
+        featureList = [
+          `${p.monthlyMinutesLimit.toLocaleString()} calling minutes included monthly`,
+          p.description || "Dedicated high-throughput SIP trunk line",
+          "Custom branding & WebRTC white-labeling",
+          "Unlimited staff dispatch & multi-location",
+          "99.9% uptime SLA guarantee",
+          "Custom ERP, CRM & POS webhook sync",
+          "24/7 dedicated account manager",
+        ];
+      }
+    }
+
+    return {
+      name: p.planName,
+      minutes: `${p.monthlyMinutesLimit.toLocaleString()} Minutes`,
+      price: `$${priceNum.toFixed(2)}`,
+      annualPrice: `$${annualPriceNum.toFixed(2)}`,
+      period: "/month",
+      popular: isPopular,
+      features: featureList,
+    };
+  });
+}
+
 export function MarketingLanding({
   initialLoggedInTenant,
+  initialPlans,
 }: {
   initialLoggedInTenant?: string | null;
+  initialPlans?: DbPlan[];
 }) {
+  const [plans, setPlans] = useState<PlanItem[]>(() => formatPlansFromDb(initialPlans));
+
+  useEffect(() => {
+    if (!initialPlans || initialPlans.length === 0) {
+      fetch("/api/plans")
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data: DbPlan[]) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setPlans(formatPlansFromDb(data));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [initialPlans]);
+
   const [selectedAgentGender, setSelectedAgentGender] = useState<"male" | "female">("male");
   const [isAnnual, setIsAnnual] = useState(false);
   const [selectedPlanForModal, setSelectedPlanForModal] = useState<PlanItem | null>(null);
@@ -200,101 +291,98 @@ export function MarketingLanding({
   };
 
   return (
-    <div className="min-h-screen bg-[#140D0A] text-slate-800 font-sans selection:bg-[#EA580C] selection:text-white relative overflow-x-hidden">
-      {/* Background Lighting Vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-80"
-        style={{
-          background:
-            "radial-gradient(ellipse 90% 60% at 50% 0%, #2f1d16 0%, #17100d 50%, #0d0806 100%)",
-        }}
-      />
-
-      {/* Top techwitpro branding bar (Matching screenshot top emblem) */}
-      <header className="relative z-10 pt-7 pb-4 flex flex-col items-center justify-center">
-        <div className="flex items-center gap-2 text-white/90 hover:text-white transition">
-          <svg
-            className="w-7 h-7 text-white"
-            viewBox="0 0 40 40"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M7 11L14 30L20 16L26 30L33 11H27.5L23 23L18.5 12.5L14 23L9.5 11H7Z" />
-          </svg>
-          <span className="text-xl font-bold tracking-tight text-white drop-shadow-sm font-sans">
-            techwitpro
-          </span>
+    <div className="min-h-screen bg-white text-slate-800 font-sans selection:bg-[#EA580C] selection:text-white relative overflow-x-hidden flex flex-col w-full">
+      {/* Top Techwitpro announcement header */}
+      <div className="w-full bg-[#080C42] text-white py-2 px-4 text-xs z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <svg
+              className="w-4 h-4 text-white shrink-0"
+              viewBox="0 0 40 40"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M7 11L14 30L20 16L26 30L33 11H27.5L23 23L18.5 12.5L14 23L9.5 11H7Z" />
+            </svg>
+            <span className="font-semibold tracking-wide">techwitpro &bull; SecureMind AI</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-4 text-white/80 text-[11px]">
+            <span>24/7 AI Voice Dispatch</span>
+            <span>&bull;</span>
+            <span>Conflict-Free Calendar Booking</span>
+            <span>&bull;</span>
+            <span>99.9% Telephony Uptime</span>
+          </div>
         </div>
-      </header>
+      </div>
 
-      {/* Main Centerpiece Showcase Frame (Matching reference image) */}
-      <main className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 pb-24">
-        <div className="bg-white rounded-[26px] sm:rounded-[34px] shadow-[0_30px_100px_rgba(0,0,0,0.65)] border border-white/40 overflow-hidden">
-          {/* Inner Showcase Navbar */}
-          <nav className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-30">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="size-9 rounded-xl bg-[#090D1A] flex items-center justify-center text-white shadow-xs">
-                <Shield size={18} className="text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-bold tracking-tight text-[#090D1A]">SecureMind</span>
-                <span className="text-[10px] font-semibold tracking-wider uppercase text-[#EA580C] -mt-0.5">
-                  Alpha Booking Agent
-                </span>
-              </div>
+      {/* Edge-to-Edge Sticky Navbar */}
+      <nav className="w-full border-b border-slate-100 bg-white/95 backdrop-blur-md sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="size-9 rounded-xl bg-[#090D1A] flex items-center justify-center text-white shadow-xs">
+              <Shield size={18} className="text-white" />
             </div>
-
-            {/* Nav Links */}
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-              <a href="#solutions" className="hover:text-[#090D1A] transition">
-                Solutions
-              </a>
-              <a href="#features" className="hover:text-[#090D1A] transition">
-                Features
-              </a>
-              <a href="#simulator" className="hover:text-[#090D1A] transition">
-                Live Simulator
-              </a>
-              <a href="#pricing" className="hover:text-[#090D1A] transition">
-                Pricing
-              </a>
-              <a href="#faq" className="hover:text-[#090D1A] transition">
-                FAQ
-              </a>
+            <div className="flex flex-col">
+              <span className="text-base font-bold tracking-tight text-[#090D1A]">SecureMind</span>
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-[#EA580C] -mt-0.5">
+                Alpha Booking Agent
+              </span>
             </div>
+          </div>
 
-            {/* Right CTAs */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              {initialLoggedInTenant ? (
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+            <a href="#simulator" className="hover:text-[#090D1A] transition">
+              Live Simulator
+            </a>
+            <a href="#pricing" className="hover:text-[#090D1A] transition">
+              Pricing
+            </a>
+            <a href="#features" className="hover:text-[#090D1A] transition">
+              Features
+            </a>
+            <a href="#faq" className="hover:text-[#090D1A] transition">
+              FAQ
+            </a>
+          </div>
+
+          {/* Right CTAs */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {initialLoggedInTenant ? (
+              <Link
+                href={`/dashboard/${encodeURIComponent(initialLoggedInTenant)}`}
+                className="rounded-full bg-[#090D1A] px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition shadow-sm flex items-center gap-1.5"
+              >
+                Workspace Dashboard
+                <ArrowRight size={14} />
+              </Link>
+            ) : (
+              <>
                 <Link
-                  href={`/dashboard/${encodeURIComponent(initialLoggedInTenant)}`}
-                  className="rounded-full bg-[#090D1A] px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-slate-800 transition shadow-sm flex items-center gap-1.5"
+                  href="/login"
+                  className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-black transition px-2 py-1"
                 >
-                  Workspace Dashboard
-                  <ArrowRight size={14} />
+                  Sign in
                 </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-black transition px-2 py-1"
-                  >
-                    Sign in
-                  </Link>
-                  <a
-                    href="#pricing"
-                    className="rounded-full bg-[#090D1A] px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-black transition shadow-sm"
-                  >
-                    Get Started
-                  </a>
-                </>
-              )}
-            </div>
-          </nav>
+                <a
+                  href="#pricing"
+                  className="rounded-full bg-[#090D1A] px-5 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-black transition shadow-sm"
+                >
+                  Get Started
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
 
-          {/* HERO SECTION (Faithful recreation of reference image) */}
-          <section className="relative px-6 sm:px-10 lg:px-12 pt-10 pb-16 bg-white overflow-hidden">
+      {/* Main Content Area - Full width clean white */}
+      <main className="flex-1 w-full bg-white">
+        {/* HERO SECTION */}
+        <section className="relative w-full bg-white pt-10 pb-16 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Left Column (Copy + CTA + Social proof) */}
               <div className="lg:col-span-5 space-y-6 z-10">
@@ -516,10 +604,12 @@ export function MarketingLanding({
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* SECTION 2: INTERACTIVE LIVE VOICE & CALENDAR SIMULATOR */}
-          <section id="simulator" className="px-6 sm:px-10 lg:px-12 py-16 bg-slate-50/70 border-t border-slate-100">
+        {/* SECTION 2: INTERACTIVE LIVE VOICE & CALENDAR SIMULATOR */}
+        <section id="simulator" className="w-full px-4 sm:px-6 lg:px-8 py-16 bg-slate-50/70 border-t border-b border-slate-100">
+          <div className="max-w-7xl mx-auto">
             <div className="max-w-4xl mx-auto text-center space-y-3">
               <span className="text-xs font-bold text-[#EA580C] uppercase tracking-wider bg-orange-100/60 px-3 py-1 rounded-full">
                 Interactive Voice Demo
@@ -653,10 +743,12 @@ export function MarketingLanding({
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* SECTION 3: SUBSCRIPTION PLANS OUTSIDE (Explicitly requested by user) */}
-          <section id="pricing" className="px-6 sm:px-10 lg:px-12 py-20 bg-white">
+        {/* SECTION 3: SUBSCRIPTION PLANS (Dynamic from API) */}
+        <section id="pricing" className="w-full px-4 sm:px-6 lg:px-8 py-20 bg-white border-b border-slate-100">
+          <div className="max-w-7xl mx-auto">
             <div className="max-w-3xl mx-auto text-center space-y-3">
               <span className="text-xs font-bold text-[#EA580C] uppercase tracking-wider bg-orange-100/60 px-3.5 py-1 rounded-full">
                 Transparent Plans
@@ -695,9 +787,9 @@ export function MarketingLanding({
               </div>
             </div>
 
-            {/* Plan Cards Grid */}
+            {/* Plan Cards Grid - Dynamic from API */}
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
-              {defaultPlans.map((plan) => {
+              {plans.map((plan) => {
                 const isPro = plan.popular;
                 const price = isAnnual ? plan.annualPrice : plan.price;
 
@@ -804,10 +896,12 @@ export function MarketingLanding({
                 All checkouts require tenant workspace verification to prevent unauthorized billing and protect telephony credentials.
               </p>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* SECTION 4: FEATURES GRID */}
-          <section id="features" className="px-6 sm:px-10 lg:px-12 py-16 bg-slate-50/50 border-t border-slate-100">
+        {/* SECTION 4: FEATURES GRID */}
+        <section id="features" className="w-full px-4 sm:px-6 lg:px-8 py-16 bg-slate-50/60 border-b border-slate-100">
+          <div className="max-w-7xl mx-auto">
             <div className="max-w-3xl mx-auto text-center space-y-2 mb-12">
               <h2 className="text-3xl font-bold text-[#090D1A] tracking-tight">
                 Engineered For High-Volume Operations
@@ -848,10 +942,12 @@ export function MarketingLanding({
                 </p>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* SECTION 5: FAQ ACCORDION */}
-          <section id="faq" className="px-6 sm:px-10 lg:px-12 py-16 bg-white border-t border-slate-100">
+        {/* SECTION 5: FAQ ACCORDION */}
+        <section id="faq" className="w-full px-4 sm:px-6 lg:px-8 py-16 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto">
             <div className="max-w-2xl mx-auto text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-bold text-[#090D1A] tracking-tight">
                 Frequently Asked Questions
@@ -903,30 +999,39 @@ export function MarketingLanding({
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* INNER SHOWCASE FOOTER */}
-          <footer className="px-6 sm:px-10 py-8 bg-slate-900 text-white/80 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="size-6 rounded-md bg-white text-slate-900 flex items-center justify-center font-bold text-xs">
-                A
-              </div>
-              <span className="font-bold text-white tracking-tight">Alpha RelayDesk &bull; SecureMind</span>
-            </div>
-            <div className="flex items-center gap-6 text-slate-400">
-              <a href="#pricing" className="hover:text-white transition">Pricing</a>
-              <Link href="/login" className="hover:text-white transition">Sign in</Link>
-              <a href="#faq" className="hover:text-white transition">Security</a>
-            </div>
-            <p className="text-slate-500">&copy; {new Date().getFullYear()} All rights reserved.</p>
-          </footer>
-        </div>
+          </div>
+        </section>
       </main>
 
-      {/* Outer Bottom techwitpro.com link (Matching screenshot bottom banner) */}
-      <footer className="relative z-10 pb-10 flex items-center justify-center gap-2 text-white/80 hover:text-white transition text-sm">
-        <Globe size={18} className="text-white/80" />
-        <span className="font-bold tracking-wider text-base text-white">techwitpro.com</span>
+      {/* FULL-WIDTH FOOTER COVERING ALL ENDS */}
+      <footer className="w-full bg-[#080C42] text-white/80 py-12 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="size-7 rounded-lg bg-white text-[#080C42] flex items-center justify-center font-bold text-xs">
+              A
+            </div>
+            <div>
+              <span className="font-bold text-white tracking-tight text-sm">Alpha RelayDesk &bull; SecureMind</span>
+              <p className="text-slate-400 text-xs">Autonomous AI Voice Booking Agent</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-slate-300">
+            <a href="#simulator" className="hover:text-white transition">Simulator</a>
+            <a href="#pricing" className="hover:text-white transition">Pricing</a>
+            <Link href="/login" className="hover:text-white transition">Sign in</Link>
+            <a href="#faq" className="hover:text-white transition">Security</a>
+            <a
+              href="https://techwitpro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-white transition text-white font-semibold"
+            >
+              <Globe size={15} />
+              techwitpro.com
+            </a>
+          </div>
+          <p className="text-slate-400">&copy; {new Date().getFullYear()} TechWitPro. All rights reserved.</p>
+        </div>
       </footer>
 
       {/* THE SAFEGUARD PURCHASE MODAL (Prompting to login/signup to safeguard creds & payments) */}
