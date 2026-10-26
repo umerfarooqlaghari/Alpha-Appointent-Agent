@@ -138,6 +138,7 @@
         const data = await response.json();
         verifiedTenantId = data.tenantId;
         window.RelayDeskIndustryType = data.industryType || '';
+        window.RelayDeskTenantName = data.tenantName || '';
         window.RelayDeskCurrency = data.currency || 'USD';
         window.RelayDeskRemainingSeconds = data.remainingSeconds;
       }
@@ -191,6 +192,7 @@
           variableValues: {
             tenantId: verifiedTenantId,
             tenant_id: verifiedTenantId,
+            tenantName: window.RelayDeskTenantName || '',
             industryType: indType,
             industry_type: indType,
             currency: curr

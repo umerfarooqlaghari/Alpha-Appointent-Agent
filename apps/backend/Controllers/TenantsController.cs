@@ -388,6 +388,8 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
             }
         }
 
+        var tenantName = await db.Tenants.Where(t => t.TenantId == config.TenantId).Select(t => t.Name).SingleOrDefaultAsync() ?? "";
+
         // Subscription Quota Check
         var subscription = await db.TenantSubscriptions.SingleOrDefaultAsync(s => s.TenantId == config.TenantId);
         if (subscription is null)
@@ -415,7 +417,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
         // Unlimited bypass for Superadmin overrides (e.g. for Alpha Devs)
         if (subscription.PlanName.Equals("Unlimited", StringComparison.OrdinalIgnoreCase))
         {
-            return Results.Ok(new { tenantId = config.TenantId, industryType = config.IndustryType ?? "", remainingSeconds = 1800 }); // standard Vapi session limit
+            return Results.Ok(new { tenantId = config.TenantId, tenantName, industryType = config.IndustryType ?? "", currency = config.Currency ?? "USD", remainingSeconds = 1800 }); // standard Vapi session limit
         }
 
         // Trial expiration check
@@ -431,7 +433,7 @@ public sealed class TenantsController(AppDbContext db, AvailabilityScheduleServi
 
         var remainingSeconds = (int)((subscription.MonthlyMinutesLimit - subscription.MinutesUsed) * 60);
 
-        return Results.Ok(new { tenantId = config.TenantId, industryType = config.IndustryType ?? "", currency = config.Currency ?? "USD", remainingSeconds = remainingSeconds });
+        return Results.Ok(new { tenantId = config.TenantId, tenantName, industryType = config.IndustryType ?? "", currency = config.Currency ?? "USD", remainingSeconds = remainingSeconds });
     }
 
     [HttpPost("public/webhooks/vapi")]

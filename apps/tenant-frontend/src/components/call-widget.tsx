@@ -139,6 +139,7 @@ export function CallWidget({ tenantId, tenantName, industryType = "", currency =
       variableValues: {
         tenantId,
         tenant_id: tenantId,
+        tenantName: tenantName || "",
         industryType: industryType || "",
         industry_type: industryType || "",
         currency: currency || "USD"
